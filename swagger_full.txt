@@ -1,0 +1,2414 @@
+
+window.onload = function() {
+  // Build a system
+  var url = window.location.search.match(/url=([^&]+)/);
+  if (url && url.length > 1) {
+    url = decodeURIComponent(url[1]);
+  } else {
+    url = window.location.origin;
+  }
+  var options = {
+  "swaggerDoc": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Kalota Family Portal",
+      "version": "1.0.0",
+      "description": "API documentation for Kalota Family Portal Backend Service"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:7000",
+        "description": "Local server"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "paths": {
+      "/admin/user/addAdmin": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Add user profile",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "id"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "John Doe"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "johndoe@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "Test@123"
+                    },
+                    "countryCode": {
+                      "type": "string",
+                      "example": "+91"
+                    },
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "1234567890"
+                    },
+                    "address": {
+                      "type": "string",
+                      "example": "123 Street, Area"
+                    },
+                    "city": {
+                      "type": "string",
+                      "example": "Mumbai"
+                    },
+                    "country": {
+                      "type": "string",
+                      "example": "India"
+                    },
+                    "imageFile": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "example": "Assign role id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Admin User Controller profile added successfully"
+            },
+            "400": {
+              "description": "Bad request"
+            }
+          }
+        }
+      },
+      "/admin/user/login": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.test"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "Test@123"
+                    },
+                    "deviceType": {
+                      "type": "string",
+                      "example": "android/ios"
+                    },
+                    "deviceToken": {
+                      "type": "string",
+                      "example": "ab12d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login success, user logged in"
+            },
+            "401": {
+              "description": "Invalid Credentials"
+            }
+          }
+        }
+      },
+      "/admin/user/forgot-password-otp": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Send forgot password OTP",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.test"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OTP sent successfully"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/admin/user/reset-password-otp": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Reset password using OTP",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.test"
+                    },
+                    "otp": {
+                      "type": "string",
+                      "example": "123456"
+                    },
+                    "newPassword": {
+                      "type": "string",
+                      "example": "Test@123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password reset successful"
+            },
+            "400": {
+              "description": "Invalid OTP / OTP expired"
+            }
+          }
+        }
+      },
+      "/admin/user/forgot-password-link": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Send password reset link",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.test"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Reset password link sent successfully"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/admin/user/reset-password-link": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Reset password using link token",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "a12bc34d56ef"
+                    },
+                    "newPassword": {
+                      "type": "string",
+                      "example": "Test@123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password reset successful"
+            },
+            "400": {
+              "description": "Invalid or expired token"
+            }
+          }
+        }
+      },
+      "/admin/user/requestOtp": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Request OTP for login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "1234567890"
+                    },
+                    "countryCode": {
+                      "type": "string",
+                      "example": "+91"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OTP sent successfully"
+            },
+            "400": {
+              "description": "Invalid request"
+            }
+          }
+        }
+      },
+      "/admin/user/verifyOtp": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Verify OTP and login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countryCode": {
+                      "type": "string",
+                      "example": "+91"
+                    },
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "1234567890"
+                    },
+                    "otp": {
+                      "type": "string",
+                      "example": "1234"
+                    },
+                    "deviceType": {
+                      "type": "string",
+                      "example": "android/ios"
+                    },
+                    "deviceToken": {
+                      "type": "string",
+                      "example": "ab12d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OTP verified, user logged in"
+            },
+            "401": {
+              "description": "Invalid OTP"
+            }
+          }
+        }
+      },
+      "/admin/user/blockUnblock": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Block or Unblock a User",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "remark": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User status updated"
+            }
+          }
+        }
+      },
+      "/admin/user/getProfile/{id}": {
+        "get": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Get user profile by ID",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "User ID",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User profile data"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/admin/user/getAllUser": {
+        "get": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Get list of all admin (with pagination & search, sorted by createdAt DESC)",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer",
+                "default": 0
+              },
+              "description": "Page index (starting from 0)"
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer",
+                "default": 10
+              },
+              "description": "Number of records per page"
+            },
+            {
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              },
+              "description": "User status (active/inactive)"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Search text for filtering admin (name, email, etc.)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of admin"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/admin/user/getTotalUserCount": {
+        "get": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "User count by filter",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User count"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "User Count not found"
+            }
+          }
+        }
+      },
+      "/admin/user/getAllUserLogs": {
+        "get": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Get list of all users logs (with pagination, optional status & search)",
+          "description": "Fetch paginated users, optionally filtered by status or search text. Results are sorted by createdAt in descending order.",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer",
+                "default": 0
+              },
+              "description": "Page index (starting from 0)"
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer",
+                "default": 10
+              },
+              "description": "Number of records per page"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string",
+                "example": "John"
+              },
+              "description": "Optional search keyword (name, email, etc.)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of users logs fetched successfully"
+            },
+            "400": {
+              "description": "Invalid request parameters"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/user/upload": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Upload user profile image",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "File uploaded successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/admin/user/uploadMultipleFiles": {
+        "post": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Upload multiple files",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "binary"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Files uploaded successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/admin/user/logout": {
+        "get": {
+          "tags": [
+            "Admin User Controller"
+          ],
+          "summary": "Logout user by token",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "token",
+              "required": true,
+              "description": "User access token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User Logout"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/admin/role/addRole": {
+        "post": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Add a new role with modules & permissions",
+          "description": "Creates a role along with its associated module permissions.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "id"
+                    },
+                    "roleName": {
+                      "type": "string",
+                      "example": "Admin"
+                    },
+                    "roleDescription": {
+                      "type": "string",
+                      "example": "Administrator with full access"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "roleModuleRequestList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "64f1e3f6a1b2c3d4e5f6g7h8"
+                          },
+                          "moduleId": {
+                            "type": "string",
+                            "example": "64f1e3f6a1b2c3d4e5f6g7h8"
+                          },
+                          "moduleName": {
+                            "type": "string",
+                            "example": "User Management"
+                          },
+                          "parentModuleName": {
+                            "type": "string",
+                            "example": "Administration"
+                          },
+                          "moduleCode": {
+                            "type": "string",
+                            "example": "USER_MGMT"
+                          },
+                          "moduleAction": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "addAction": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "updateAction": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "deleteAction": {
+                            "type": "integer",
+                            "example": 0
+                          },
+                          "downloadAction": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "viewAction": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "status": {
+                            "type": "integer",
+                            "example": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Role created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Role created successfully"
+                      },
+                      "data": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/admin/role/getById": {
+        "get": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Get role by ID",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "roleId",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Role details"
+            }
+          }
+        }
+      },
+      "/admin/role/getByName": {
+        "get": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Get role by name",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "roleName",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Role details"
+            }
+          }
+        }
+      },
+      "/admin/role/info": {
+        "get": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Get detailed role info",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "roleId",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Role info with permissions"
+            }
+          }
+        }
+      },
+      "/admin/role/getAllRole": {
+        "get": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Get all roles with pagination, search, and status",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer"
+              },
+              "description": "Page index (default 0)"
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer"
+              },
+              "description": "Number of records per page"
+            },
+            {
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Role status (active/inactive)"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Search by role name"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of roles"
+            }
+          }
+        }
+      },
+      "/admin/role/blockUnblock": {
+        "post": {
+          "tags": [
+            "Role Controller"
+          ],
+          "summary": "Block or Unblock a role",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "remark": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Role status updated"
+            }
+          }
+        }
+      },
+      "/admin/module/addModule": {
+        "post": {
+          "tags": [
+            "Module Controller"
+          ],
+          "summary": "Create or Update Module",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "moduleName": {
+                      "type": "string"
+                    },
+                    "moduleCode": {
+                      "type": "string"
+                    },
+                    "parentModuleName": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Module created/updated"
+            },
+            "404": {
+              "description": "Module not found"
+            },
+            "500": {
+              "description": "Server error"
+            }
+          }
+        }
+      },
+      "/admin/module/getAllModule": {
+        "get": {
+          "tags": [
+            "Module Controller"
+          ],
+          "summary": "Get list of all modules (with pagination & search)",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer"
+              },
+              "description": "Page index (starting from 0)"
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer"
+              },
+              "description": "Number of records per page"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Search by moduleName/moduleCode/parentModuleName"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Module list"
+            },
+            "404": {
+              "description": "No records found"
+            },
+            "500": {
+              "description": "Server error"
+            }
+          }
+        }
+      },
+      "/admin/location/addLocation": {
+        "post": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Add or update a location",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "district",
+                    "tehsil",
+                    "village"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Leave empty for new location, provide ID for update",
+                      "example": ""
+                    },
+                    "district": {
+                      "type": "string",
+                      "description": "District name",
+                      "example": "Jaipur"
+                    },
+                    "tehsil": {
+                      "type": "string",
+                      "description": "Tehsil name",
+                      "example": "Amer"
+                    },
+                    "village": {
+                      "type": "string",
+                      "description": "Village name",
+                      "example": "Kanota"
+                    },
+                    "latitude": {
+                      "type": "number",
+                      "description": "Latitude coordinate",
+                      "example": 26.9124
+                    },
+                    "longitude": {
+                      "type": "number",
+                      "description": "Longitude coordinate",
+                      "example": 75.7873
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status (0=deleted, 1=active, 2=inactive)",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Location added/updated successfully"
+            },
+            "400": {
+              "description": "Bad request - missing required fields"
+            },
+            "404": {
+              "description": "Location not found (for update)"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/location/getById/{id}": {
+        "get": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Get location by ID",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Location details"
+            }
+          }
+        }
+      },
+      "/admin/location/getAllLocations": {
+        "get": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Get all locations with pagination and filters",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer",
+                "default": 0
+              }
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer",
+                "default": 10
+              }
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "district",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "tehsil",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of locations"
+            }
+          }
+        }
+      },
+      "/admin/location/blockUnblock": {
+        "post": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Activate / deactivate / delete a location",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Status updated"
+            }
+          }
+        }
+      },
+      "/admin/location/getDistricts": {
+        "get": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Get all distinct districts (for dropdown)",
+          "responses": {
+            "200": {
+              "description": "List of district names"
+            }
+          }
+        }
+      },
+      "/admin/location/getTehsils": {
+        "get": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Get tehsils by district (for dropdown)",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "district",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "example": "Jaipur"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of tehsil names"
+            }
+          }
+        }
+      },
+      "/admin/location/getVillages": {
+        "get": {
+          "tags": [
+            "Location Controller"
+          ],
+          "summary": "Get villages by district and tehsil (for dropdown)",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "district",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "example": "Jaipur"
+            },
+            {
+              "in": "query",
+              "name": "tehsil",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "example": "Amer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of villages with lat/long"
+            }
+          }
+        }
+      },
+      "/admin/family/create": {
+        "post": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Create a new family with head profile and additional profiles",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "headProfile"
+                  ],
+                  "properties": {
+                    "familyId": {
+                      "type": "string",
+                      "description": "Optional custom familyId, auto-generated if not provided",
+                      "example": ""
+                    },
+                    "headProfile": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "district",
+                        "tehsil",
+                        "village"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Dilip Singh Patel"
+                        },
+                        "dob": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "1970-12-01"
+                        },
+                        "gender": {
+                          "type": "string",
+                          "enum": [
+                            "MALE",
+                            "FEMALE",
+                            "OTHER"
+                          ],
+                          "example": "MALE"
+                        },
+                        "isMarried": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "occupation": {
+                          "type": "string",
+                          "example": "Farmer"
+                        },
+                        "education": {
+                          "type": "string",
+                          "example": "Graduation"
+                        },
+                        "mobileNumber": {
+                          "type": "string",
+                          "example": "9876543210"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "dilip@gmail.com"
+                        },
+                        "fatherName": {
+                          "type": "string",
+                          "example": "Ramchandra Patel"
+                        },
+                        "motherName": {
+                          "type": "string",
+                          "example": "Savitri Patel"
+                        },
+                        "grandFatherName": {
+                          "type": "string",
+                          "example": "Shivlal Patel"
+                        },
+                        "district": {
+                          "type": "string",
+                          "example": "Dewas"
+                        },
+                        "tehsil": {
+                          "type": "string",
+                          "example": "Tonkkhurd"
+                        },
+                        "village": {
+                          "type": "string",
+                          "example": "Piplayasadak"
+                        },
+                        "profileImage": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "spouseFamilyId": {
+                          "type": "string",
+                          "example": ""
+                        },
+                        "spouseDetails": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "example": "Maya Patel"
+                              },
+                              "fatherName": {
+                                "type": "string",
+                                "example": "Sohan Patel"
+                              },
+                              "district": {
+                                "type": "string",
+                                "example": "Dewas"
+                              },
+                              "tehsil": {
+                                "type": "string",
+                                "example": "Tonkkhurd"
+                              },
+                              "village": {
+                                "type": "string",
+                                "example": "Piplayasadak"
+                              },
+                              "familyId": {
+                                "type": "string",
+                                "example": ""
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "profiles": {
+                      "type": "array",
+                      "description": "Additional family members to add along with head",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "relationToHead"
+                        ],
+                        "properties": {
+                          "relationToHead": {
+                            "type": "string",
+                            "enum": [
+                              "HEAD",
+                              "FATHER",
+                              "MOTHER",
+                              "SPOUSE",
+                              "SISTER",
+                              "SON",
+                              "DAUGHTER",
+                              "GRANDSON",
+                              "GRANDDAUGHTER",
+                              "OTHER"
+                            ],
+                            "example": "SPOUSE"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Maya Patel"
+                          },
+                          "dob": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "1975-06-15"
+                          },
+                          "gender": {
+                            "type": "string",
+                            "enum": [
+                              "MALE",
+                              "FEMALE",
+                              "OTHER"
+                            ],
+                            "example": "FEMALE"
+                          },
+                          "isMarried": {
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "occupation": {
+                            "type": "string",
+                            "example": "Homemaker"
+                          },
+                          "education": {
+                            "type": "string",
+                            "example": "Secondary"
+                          },
+                          "mobileNumber": {
+                            "type": "string",
+                            "example": "9876543211"
+                          },
+                          "email": {
+                            "type": "string",
+                            "example": "maya@gmail.com"
+                          },
+                          "fatherName": {
+                            "type": "string",
+                            "example": "Sohan Patel"
+                          },
+                          "motherName": {
+                            "type": "string",
+                            "example": "Geeta Patel"
+                          },
+                          "grandFatherName": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "district": {
+                            "type": "string",
+                            "example": "Dewas"
+                          },
+                          "tehsil": {
+                            "type": "string",
+                            "example": "Tonkkhurd"
+                          },
+                          "village": {
+                            "type": "string",
+                            "example": "Piplayasadak"
+                          },
+                          "profileImage": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "parentProfileId": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "spouseFamilyId": {
+                            "type": "string",
+                            "example": ""
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Family created successfully"
+            },
+            "400": {
+              "description": "Bad request - missing required fields"
+            },
+            "409": {
+              "description": "FamilyId already exists"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/addProfile": {
+        "post": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Add a new profile to an existing family",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "familyId",
+                    "name",
+                    "relationToHead"
+                  ],
+                  "properties": {
+                    "familyId": {
+                      "type": "string",
+                      "example": "KFP-DEW-TON-PIP-0001"
+                    },
+                    "relationToHead": {
+                      "type": "string",
+                      "enum": [
+                        "HEAD",
+                        "FATHER",
+                        "MOTHER",
+                        "SPOUSE",
+                        "SISTER",
+                        "SON",
+                        "DAUGHTER",
+                        "GRANDSON",
+                        "GRANDDAUGHTER",
+                        "OTHER"
+                      ],
+                      "example": "SON"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Rohan Patel"
+                    },
+                    "dob": {
+                      "type": "string",
+                      "format": "date",
+                      "example": "2000-03-10"
+                    },
+                    "gender": {
+                      "type": "string",
+                      "enum": [
+                        "MALE",
+                        "FEMALE",
+                        "OTHER"
+                      ],
+                      "example": "MALE"
+                    },
+                    "isMarried": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "occupation": {
+                      "type": "string",
+                      "example": "Student"
+                    },
+                    "education": {
+                      "type": "string",
+                      "example": "Higher Secondary"
+                    },
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "9876543212"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "rohan@gmail.com"
+                    },
+                    "fatherName": {
+                      "type": "string",
+                      "example": "Dilip Singh Patel"
+                    },
+                    "motherName": {
+                      "type": "string",
+                      "example": "Maya Patel"
+                    },
+                    "grandFatherName": {
+                      "type": "string",
+                      "example": "Ramchandra Patel"
+                    },
+                    "district": {
+                      "type": "string",
+                      "example": "Dewas"
+                    },
+                    "tehsil": {
+                      "type": "string",
+                      "example": "Tonkkhurd"
+                    },
+                    "village": {
+                      "type": "string",
+                      "example": "Piplayasadak"
+                    },
+                    "profileImage": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "parentProfileId": {
+                      "type": "string",
+                      "description": "ObjectId of parent profile",
+                      "example": ""
+                    },
+                    "spouseFamilyId": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "spouseDetails": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "fatherName": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "district": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "tehsil": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "village": {
+                            "type": "string",
+                            "example": ""
+                          },
+                          "familyId": {
+                            "type": "string",
+                            "example": ""
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Family profile added successfully"
+            },
+            "400": {
+              "description": "Bad request - missing required fields"
+            },
+            "404": {
+              "description": "Family not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/updateProfile/{id}": {
+        "put": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Update an existing family profile by profile ID",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "FamilyProfile ObjectId",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Dilip Singh Patel"
+                    },
+                    "dob": {
+                      "type": "string",
+                      "format": "date",
+                      "example": "1970-12-01"
+                    },
+                    "gender": {
+                      "type": "string",
+                      "enum": [
+                        "MALE",
+                        "FEMALE",
+                        "OTHER"
+                      ],
+                      "example": "MALE"
+                    },
+                    "isMarried": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "occupation": {
+                      "type": "string",
+                      "example": "Farmer"
+                    },
+                    "education": {
+                      "type": "string",
+                      "example": "Graduation"
+                    },
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "9876543210"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "dilip@gmail.com"
+                    },
+                    "fatherName": {
+                      "type": "string",
+                      "example": "Ramchandra Patel"
+                    },
+                    "motherName": {
+                      "type": "string",
+                      "example": "Savitri Patel"
+                    },
+                    "grandFatherName": {
+                      "type": "string",
+                      "example": "Shivlal Patel"
+                    },
+                    "district": {
+                      "type": "string",
+                      "example": "Dewas"
+                    },
+                    "tehsil": {
+                      "type": "string",
+                      "example": "Tonkkhurd"
+                    },
+                    "village": {
+                      "type": "string",
+                      "example": "Piplayasadak"
+                    },
+                    "profileImage": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "spouseFamilyId": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "spouseDetails": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "Maya Patel"
+                          },
+                          "fatherName": {
+                            "type": "string",
+                            "example": "Sohan Patel"
+                          },
+                          "district": {
+                            "type": "string",
+                            "example": "Dewas"
+                          },
+                          "tehsil": {
+                            "type": "string",
+                            "example": "Tonkkhurd"
+                          },
+                          "village": {
+                            "type": "string",
+                            "example": "Piplayasadak"
+                          },
+                          "familyId": {
+                            "type": "string",
+                            "example": ""
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status (0=deleted, 1=active, 2=inactive)",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Family profile updated successfully"
+            },
+            "404": {
+              "description": "Family profile not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/details/{familyId}": {
+        "get": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Get full family details with all profiles by familyId",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "familyId",
+              "required": true,
+              "description": "Family ID (e.g. KFP-DEW-TON-PIP-0001)",
+              "schema": {
+                "type": "string"
+              },
+              "example": "KFP-DEW-TON-PIP-0001"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Family details with all profiles"
+            },
+            "404": {
+              "description": "Family not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/list": {
+        "get": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Get paginated list of families with filters",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "pageIndex",
+              "schema": {
+                "type": "integer",
+                "default": 0
+              },
+              "description": "Page index (starting from 0)"
+            },
+            {
+              "in": "query",
+              "name": "pageSize",
+              "schema": {
+                "type": "integer",
+                "default": 10
+              },
+              "description": "Number of records per page"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Search by familyId, district, tehsil or village"
+            },
+            {
+              "in": "query",
+              "name": "district",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Dewas"
+            },
+            {
+              "in": "query",
+              "name": "tehsil",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Tonkkhurd"
+            },
+            {
+              "in": "query",
+              "name": "village",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Piplayasadak"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Paginated list of families"
+            },
+            "404": {
+              "description": "No records found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/search": {
+        "get": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Search families for member registration dropdown (max 50 results)",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "district",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Dewas"
+            },
+            {
+              "in": "query",
+              "name": "tehsil",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Tonkkhurd"
+            },
+            {
+              "in": "query",
+              "name": "village",
+              "schema": {
+                "type": "string"
+              },
+              "example": "Piplayasadak"
+            },
+            {
+              "in": "query",
+              "name": "searchText",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Search by familyId, district, tehsil or village"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of family options for dropdown"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/admin/family/blockUnblock": {
+        "post": {
+          "tags": [
+            "Family Controller"
+          ],
+          "summary": "Activate, deactivate or delete a family",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "familyId",
+                    "status"
+                  ],
+                  "properties": {
+                    "familyId": {
+                      "type": "string",
+                      "example": "KFP-DEW-TON-PIP-0001"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "description": "Status (0=deleted, 1=active, 2=inactive)",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Family status updated"
+            },
+            "404": {
+              "description": "Family not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/member/auth/requestOtp": {
+        "post": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Request OTP for member login or registration",
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "9876543210"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OTP sent successfully"
+            }
+          }
+        }
+      },
+      "/member/auth/verifyOtp": {
+        "post": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Verify OTP and login if member is approved",
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "9876543210"
+                    },
+                    "otp": {
+                      "type": "string",
+                      "example": "1234"
+                    },
+                    "deviceType": {
+                      "type": "string",
+                      "example": "android"
+                    },
+                    "deviceToken": {
+                      "type": "string",
+                      "example": "device-token"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/member/register": {
+        "post": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Register member after mobile OTP verification",
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mobileNumber": {
+                      "type": "string",
+                      "example": "9876543210"
+                    },
+                    "familyId": {
+                      "type": "string",
+                      "example": "KFP-DEW-TON-PIP-0001"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Nitesh Patel"
+                    },
+                    "fatherName": {
+                      "type": "string",
+                      "example": "Dilip Singh Patel"
+                    },
+                    "grandFatherName": {
+                      "type": "string",
+                      "example": "Ramchandra Patel"
+                    },
+                    "sasurName": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "grandSasurName": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "nitesh@gmail.com"
+                    },
+                    "gender": {
+                      "type": "string",
+                      "example": "MALE"
+                    },
+                    "isMarried": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "district": {
+                      "type": "string",
+                      "example": "Dewas"
+                    },
+                    "tehsil": {
+                      "type": "string",
+                      "example": "Tonkkhurd"
+                    },
+                    "village": {
+                      "type": "string",
+                      "example": "Piplayasadak"
+                    },
+                    "isFamilyHead": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/member/me": {
+        "get": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Get logged in member profile",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/member/family/details": {
+        "get": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Get logged in member family details",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/member/logout": {
+        "get": {
+          "tags": [
+            "Member Controller"
+          ],
+          "summary": "Logout logged in member",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
+      "/admin/member/list": {
+        "get": {
+          "tags": [
+            "Member Admin Controller"
+          ],
+          "summary": "Get all registered members"
+        }
+      },
+      "/admin/member/pending": {
+        "get": {
+          "tags": [
+            "Member Admin Controller"
+          ],
+          "summary": "Get pending member registrations"
+        }
+      },
+      "/admin/member/approve": {
+        "post": {
+          "tags": [
+            "Member Admin Controller"
+          ],
+          "summary": "Approve member registration",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "memberId"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/admin/member/reject": {
+        "post": {
+          "tags": [
+            "Member Admin Controller"
+          ],
+          "summary": "Reject member registration",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "memberId"
+                    },
+                    "rejectionReason": {
+                      "type": "string",
+                      "example": "Wrong family ID selected"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "Admin User Controller",
+        "description": "User management and authentication APIs"
+      },
+      {
+        "name": "Role Controller",
+        "description": "Role management APIs"
+      },
+      {
+        "name": "Module Controller",
+        "description": "Module management APIs"
+      },
+      {
+        "name": "Location Controller",
+        "description": "Location management APIs"
+      },
+      {
+        "name": "Family Controller",
+        "description": "Family and family profile management APIs"
+      },
+      {
+        "name": "Member Controller",
+        "description": "Public member registration, OTP login and family access APIs"
+      },
+      {
+        "name": "Member Admin Controller",
+        "description": "Admin APIs for member approvals"
+      }
+    ]
+  },
+  "customOptions": {}
+};
+  url = options.swaggerUrl || url
+  var urls = options.swaggerUrls
+  var customOptions = options.customOptions
+  var spec1 = options.swaggerDoc
+  var swaggerOptions = {
+    spec: spec1,
+    url: url,
+    urls: urls,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  }
+  for (var attrname in customOptions) {
+    swaggerOptions[attrname] = customOptions[attrname];
+  }
+  var ui = SwaggerUIBundle(swaggerOptions)
+
+  if (customOptions.oauth) {
+    ui.initOAuth(customOptions.oauth)
+  }
+
+  if (customOptions.preauthorizeApiKey) {
+    const key = customOptions.preauthorizeApiKey.authDefinitionKey;
+    const value = customOptions.preauthorizeApiKey.apiKeyValue;
+    if (!!key && !!value) {
+      const pid = setInterval(() => {
+        const authorized = ui.preauthorizeApiKey(key, value);
+        if(!!authorized) clearInterval(pid);
+      }, 500)
+
+    }
+  }
+
+  if (customOptions.authAction) {
+    ui.authActions.authorize(customOptions.authAction)
+  }
+
+  window.ui = ui
+}
