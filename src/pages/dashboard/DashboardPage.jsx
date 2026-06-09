@@ -16,7 +16,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 
-import MadhyaPradeshMap from '../../components/dashboard/MadhyaPradeshMap'
+import MadhyaPradeshMap from './MadhyaPradeshMap'
 
 /* ======================================================
    STAT CARD

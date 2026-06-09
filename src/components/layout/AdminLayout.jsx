@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import {
   Outlet,
   NavLink,
@@ -20,6 +21,11 @@ import {
   Toolbar,
   LinearProgress,
 } from '@mui/material'
+
+import Collapse from '@mui/material/Collapse'
+
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -50,6 +56,7 @@ const DRAWER_WIDTH = 260
 const MODULE_MAP = {
   dashboard: {
     to: '/dashboard',
+
     icon: (
       <DashboardIcon
         sx={{ fontSize: 16 }}
@@ -59,6 +66,7 @@ const MODULE_MAP = {
 
   staff: {
     to: '/users',
+
     icon: (
       <PersonIcon
         sx={{ fontSize: 16 }}
@@ -68,6 +76,7 @@ const MODULE_MAP = {
 
   role: {
     to: '/roles',
+
     icon: (
       <AdminPanelSettingsIcon
         sx={{ fontSize: 16 }}
@@ -77,6 +86,7 @@ const MODULE_MAP = {
 
   'member management': {
     to: '/members',
+
     icon: (
       <GroupsIcon
         sx={{ fontSize: 16 }}
@@ -86,6 +96,7 @@ const MODULE_MAP = {
 
   'family management': {
     to: '/families',
+
     icon: (
       <FamilyRestroomIcon
         sx={{ fontSize: 16 }}
@@ -95,6 +106,7 @@ const MODULE_MAP = {
 
   location: {
     to: '/location',
+
     icon: (
       <LocationOnIcon
         sx={{ fontSize: 16 }}
@@ -104,6 +116,7 @@ const MODULE_MAP = {
 
   module: {
     to: '/modules',
+
     icon: (
       <ExtensionIcon
         sx={{ fontSize: 16 }}
@@ -120,10 +133,12 @@ const fallbackIcon = (
 
 const sidebarSx = {
   width: DRAWER_WIDTH,
+
   flexShrink: 0,
 
   '& .MuiDrawer-paper': {
     width: DRAWER_WIDTH,
+
     boxSizing: 'border-box',
 
     background:
@@ -138,6 +153,9 @@ const sidebarSx = {
 
 export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] =
+    useState(false)
+
+  const [openLocation, setOpenLocation] =
     useState(false)
 
   const [navigating, setNavigating] =
@@ -160,7 +178,6 @@ export default function AdminLayout() {
         m.moduleAction === 1 &&
         m.status === 1
     )
-
     .map((m) => {
       const key = m.moduleCode
         ?.toLowerCase()
@@ -168,6 +185,40 @@ export default function AdminLayout() {
 
       const mapped =
         MODULE_MAP[key]
+
+      if (key === 'location') {
+        return {
+          label: m.moduleName,
+
+          to:
+            mapped?.to ??
+            '/location',
+
+          icon:
+            mapped?.icon ??
+            fallbackIcon,
+
+          children: [
+            {
+              label: 'District',
+
+              to: '/district',
+            },
+
+            {
+              label: 'Tehsil',
+
+              to: '/tehsil',
+            },
+
+            {
+              label: 'Village',
+
+              to: '/village',
+            },
+          ],
+        }
+      }
 
       return {
         label: m.moduleName,
@@ -211,7 +262,9 @@ export default function AdminLayout() {
     <Box
       sx={{
         display: 'flex',
+
         flexDirection: 'column',
+
         height: '100%',
       }}
     >
@@ -220,26 +273,36 @@ export default function AdminLayout() {
       <Box
         sx={{
           px: 2.5,
+
           py: 2.5,
+
           display: 'flex',
+
           alignItems: 'center',
+
           gap: 1.5,
         }}
       >
         <Box
           sx={{
             width: 42,
+
             height: 42,
+
             borderRadius: 2,
+
             background:
               'rgba(255,255,255,0.10)',
 
             display: 'flex',
+
             alignItems: 'center',
+
             justifyContent:
               'center',
 
             overflow: 'hidden',
+
             flexShrink: 0,
           }}
         >
@@ -249,8 +312,11 @@ export default function AdminLayout() {
             alt="Logo"
             sx={{
               width: 34,
+
               height: 34,
+
               objectFit: 'cover',
+
               borderRadius: '50%',
             }}
           />
@@ -260,8 +326,11 @@ export default function AdminLayout() {
           <Typography
             sx={{
               fontSize: 14,
+
               fontWeight: 700,
+
               color: '#fff',
+
               lineHeight: 1.2,
             }}
           >
@@ -271,8 +340,10 @@ export default function AdminLayout() {
           <Typography
             sx={{
               fontSize: 11,
+
               color:
                 'rgba(255,255,255,0.6)',
+
               lineHeight: 1.4,
             }}
           >
@@ -286,6 +357,7 @@ export default function AdminLayout() {
         sx={{
           borderColor:
             'rgba(255,255,255,0.08)',
+
           mx: 2,
         }}
       />
@@ -295,14 +367,18 @@ export default function AdminLayout() {
       <List
         sx={{
           px: 1.5,
+
           pt: 1.5,
+
           flex: 1,
+
           overflowY: 'auto',
         }}
       >
         <Typography
           sx={{
             fontSize: 12,
+
             fontWeight: 700,
 
             color:
@@ -314,6 +390,7 @@ export default function AdminLayout() {
               'uppercase',
 
             px: 1,
+
             mb: 1.2,
           }}
         >
@@ -324,6 +401,7 @@ export default function AdminLayout() {
           <Typography
             sx={{
               fontSize: 11,
+
               color:
                 'rgba(255,255,255,0.6)',
 
@@ -338,87 +416,187 @@ export default function AdminLayout() {
               label,
               to,
               icon,
+              children,
             }) => (
-              <ListItemButton
-                key={to}
-                component={NavLink}
-                to={to}
-                onClick={() =>
-                  handleNavClick(to)
-                }
-                sx={{
-                  borderRadius: 2,
+              <Box key={to}>
+                {/* MAIN MENU */}
 
-                  mb: 0.6,
+                <ListItemButton
+                  component={
+                    children
+                      ? 'div'
+                      : NavLink
+                  }
+                  to={
+                    children
+                      ? undefined
+                      : to
+                  }
+                  onClick={() => {
+                    if (children) {
+                      setOpenLocation(
+                        !openLocation
+                      )
+                    } else {
+                      handleNavClick(
+                        to
+                      )
+                    }
+                  }}
+                  sx={{
+                    borderRadius: 2,
 
-                  px: 1.5,
-                  py: 1,
+                    mb: 0.6,
 
-                  color:
-                    'rgba(255,255,255,0.82)',
+                    px: 1.5,
 
-                  transition:
-                    'all 0.2s ease',
+                    py: 1,
 
-                  '& .MuiListItemIcon-root':
-                    {
-                      color:
-                        'rgba(255,255,255,0.82)',
-                    },
+                    color:
+                      'rgba(255,255,255,0.82)',
 
-                  '&.active': {
-                    bgcolor:
-                      'rgba(255,255,255,0.14)',
-
-                    color: '#fff',
+                    transition:
+                      'all 0.2s ease',
 
                     '& .MuiListItemIcon-root':
                       {
                         color:
-                          '#FFE082',
+                          'rgba(255,255,255,0.82)',
                       },
-                  },
 
-                  '&:hover': {
-                    bgcolor:
-                      'rgba(255,255,255,0.08)',
+                    '&.active': {
+                      bgcolor:
+                        'rgba(255,255,255,0.14)',
 
-                    color: '#fff',
+                      color: '#fff',
 
-                    '& .MuiListItemIcon-root':
-                      {
-                        color: '#fff',
-                      },
-                  },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 32,
-                    color: 'inherit',
+                      '& .MuiListItemIcon-root':
+                        {
+                          color:
+                            '#FFE082',
+                        },
+                    },
+
+                    '&:hover': {
+                      bgcolor:
+                        'rgba(255,255,255,0.08)',
+
+                      color: '#fff',
+
+                      '& .MuiListItemIcon-root':
+                        {
+                          color:
+                            '#fff',
+                        },
+                    },
                   }}
                 >
-                  {icon}
-                </ListItemIcon>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 32,
 
-                <ListItemText
-                  primary={label}
-                  primaryTypographyProps={{
-                    fontSize: 13,
-                    fontWeight: 500,
+                      color:
+                        'inherit',
+                    }}
+                  >
+                    {icon}
+                  </ListItemIcon>
 
-                    noWrap: true,
+                  <ListItemText
+                    primary={label}
+                    primaryTypographyProps={{
+                      fontSize: 13,
 
-                    whiteSpace:
-                      'nowrap',
+                      fontWeight: 500,
+                    }}
+                  />
 
-                    overflow: 'hidden',
+                  {children ? (
+                    openLocation ? (
+                      <ExpandLessIcon
+                        sx={{
+                          fontSize: 18,
+                        }}
+                      />
+                    ) : (
+                      <ExpandMoreIcon
+                        sx={{
+                          fontSize: 18,
+                        }}
+                      />
+                    )
+                  ) : null}
+                </ListItemButton>
 
-                    textOverflow:
-                      'ellipsis',
-                  }}
-                />
-              </ListItemButton>
+                {/* SUB MENU */}
+
+                {children && (
+                  <Collapse
+                    in={
+                      openLocation
+                    }
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    {children.map(
+                      (sub) => (
+                        <ListItemButton
+                          key={
+                            sub.to
+                          }
+                          component={
+                            NavLink
+                          }
+                          to={sub.to}
+                          onClick={() =>
+                            handleNavClick(
+                              sub.to
+                            )
+                          }
+                          sx={{
+                            ml: 4,
+
+                            mb: 0.5,
+
+                            borderRadius: 2,
+
+                            py: 0.7,
+
+                            color:
+                              'rgba(255,255,255,0.72)',
+
+                            '&.active':
+                              {
+                                bgcolor:
+                                  'rgba(255,255,255,0.12)',
+
+                                color:
+                                  '#FFE082',
+                              },
+
+                            '&:hover':
+                              {
+                                bgcolor:
+                                  'rgba(255,255,255,0.08)',
+                              },
+                          }}
+                        >
+                          <ListItemText
+                            primary={
+                              sub.label
+                            }
+                            primaryTypographyProps={{
+                              fontSize: 12,
+
+                              fontWeight: 500,
+                            }}
+                          />
+                        </ListItemButton>
+                      )
+                    )}
+                  </Collapse>
+                )}
+              </Box>
             )
           )
         )}
@@ -430,8 +608,12 @@ export default function AdminLayout() {
     <Box
       sx={{
         display: 'flex',
-        background: 'linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 50%, #FDF6E3 100%)',
+
+        background:
+          'linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 50%, #FDF6E3 100%)',
+
         minHeight: '100vh',
+
         overflowX: 'hidden',
       }}
     >
@@ -444,9 +626,6 @@ export default function AdminLayout() {
             t.zIndex.drawer + 1,
 
           background: '#E6D5A7',
-
-          borderBottom:
-            '1px solid #2A2A2A',
 
           boxShadow: 'none',
         }}
@@ -471,7 +650,9 @@ export default function AdminLayout() {
           <Box
             sx={{
               display: 'flex',
+
               alignItems: 'center',
+
               gap: 2,
             }}
           >
@@ -492,12 +673,12 @@ export default function AdminLayout() {
               <MenuIcon />
             </IconButton>
 
-            {/* LOGO */}
-
             <Box
               sx={{
                 display: 'flex',
+
                 alignItems: 'center',
+
                 gap: 1.5,
               }}
             >
@@ -507,12 +688,14 @@ export default function AdminLayout() {
                 alt="Kalota Logo"
                 sx={{
                   width: 40,
+
                   height: 40,
 
                   borderRadius:
                     '50%',
 
-                  objectFit: 'cover',
+                  objectFit:
+                    'cover',
 
                   border:
                     '2px solid rgba(227,30,36,0.25)',
@@ -550,7 +733,9 @@ export default function AdminLayout() {
                 <Typography
                   sx={{
                     fontSize: 11,
+
                     color: '#6B4E16',
+
                     mt: 0.2,
                   }}
                 >
@@ -566,22 +751,25 @@ export default function AdminLayout() {
           <Box
             sx={{
               display: 'flex',
+
               alignItems: 'center',
+
               gap: 2,
             }}
           >
-            {/* USER */}
-
             <Box
               sx={{
                 display: 'flex',
+
                 alignItems: 'center',
+
                 gap: 1.2,
 
                 bgcolor:
                   'rgba(255,255,255,0.45)',
 
                 px: 1.5,
+
                 py: 0.8,
 
                 borderRadius: 3,
@@ -596,6 +784,7 @@ export default function AdminLayout() {
                 }
                 sx={{
                   width: 34,
+
                   height: 34,
 
                   bgcolor:
@@ -626,8 +815,11 @@ export default function AdminLayout() {
                 <Typography
                   sx={{
                     fontSize: 12,
+
                     fontWeight: 700,
+
                     color: '#222',
+
                     lineHeight: 1.2,
                   }}
                 >
@@ -638,7 +830,9 @@ export default function AdminLayout() {
                 <Typography
                   sx={{
                     fontSize: 11,
+
                     color: '#555',
+
                     lineHeight: 1.2,
                   }}
                 >
@@ -646,8 +840,6 @@ export default function AdminLayout() {
                 </Typography>
               </Box>
             </Box>
-
-            {/* LOGOUT */}
 
             <IconButton
               onClick={handleLogout}
@@ -672,14 +864,16 @@ export default function AdminLayout() {
           </Box>
         </Toolbar>
 
-        {/* LOADER */}
-
         <Box
           sx={{
             position: 'absolute',
+
             bottom: 0,
+
             left: 0,
+
             right: 0,
+
             height: 2,
           }}
         >
@@ -739,33 +933,36 @@ export default function AdminLayout() {
       {/* MAIN */}
 
       <Box
-  component="main"
-  sx={{
-    flexGrow: 1,
+        component="main"
+        sx={{
+          flexGrow: 1,
 
-    width: {
-      xs: '100%',
-      sm: `calc(100% - ${DRAWER_WIDTH}px)`,
-    },
+          width: {
+            xs: '100%',
 
-    maxWidth: '100vw',
+            sm: `calc(100% - ${DRAWER_WIDTH}px)`,
+          },
 
-    overflowX: 'hidden',
+          maxWidth: '100vw',
 
-    p: 3,
+          overflowX: 'hidden',
 
-    mt: '68px',
+          p: 3,
 
-    minHeight: '100vh',
+          mt: '68px',
 
-    background:
-      'linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 50%, #FDF6E3 100%)',
+          minHeight: '100vh',
 
-    opacity: navigating ? 0.4 : 1,
+          background:
+            'linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 50%, #FDF6E3 100%)',
 
-    transition: 'opacity 0.25s ease',
-  }}
->
+          opacity:
+            navigating ? 0.4 : 1,
+
+          transition:
+            'opacity 0.25s ease',
+        }}
+      >
         <Outlet />
       </Box>
     </Box>
