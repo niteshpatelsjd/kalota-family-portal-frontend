@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 import { useQuery } from '@tanstack/react-query'
 
 import {
@@ -10,14 +12,17 @@ import {
   Avatar,
   Chip,
   Stack,
-  Divider,
   Button,
+  IconButton,
 } from '@mui/material'
 
 import PersonIcon from '@mui/icons-material/Person'
-import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded'
+import EditRoundedIcon from '@mui/icons-material/EditRounded'
 
 import api from '../../api/axiosInstance'
+
+import EditMemberPage from './EditMemberPage'
 
 /* ───────────────── API ───────────────── */
 
@@ -32,14 +37,18 @@ const getFamilyProfile = (
     })
     .then((r) => r.data.responseBody)
 
-/* ───────────────── COMMON COLORS ───────────────── */
+/* ───────────────── COLORS ───────────────── */
 
-const primaryColor = '#7A1E1E'
+const primary = '#7A1E1E'
 
-const softBg =
-  'rgba(122,30,30,0.06)'
+const lightBg = '#FFF8F3'
 
-/* ───────────────── FORMAT DATE ───────────────── */
+const borderColor =
+  'rgba(122,30,30,0.10)'
+
+const lineColor = '#D9B8A8'
+
+/* ───────────────── DATE FORMAT ───────────────── */
 
 const formatDate = (date) => {
   if (!date) return '-'
@@ -63,108 +72,226 @@ const formatDate = (date) => {
 
 /* ───────────────── MEMBER CARD ───────────────── */
 
-function FamilyMemberCard({
+function MemberCard({
   member,
-  highlight = false,
+  isHead = false,
+  onEdit,
 }) {
+  const fullName = [
+    member?.firstName,
+    member?.middleName,
+    member?.lastName,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const DetailRow = ({
+    label,
+    value,
+  }) => {
+    if (!value) return null
+
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent:
+            'space-between',
+
+          gap: 2,
+          py: 1,
+
+          borderBottom:
+            '1px solid rgba(0,0,0,0.05)',
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#6B7280',
+            minWidth: 120,
+          }}
+        >
+          {label}
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: '#111827',
+            textAlign: 'right',
+            flex: 1,
+            wordBreak:
+              'break-word',
+          }}
+        >
+          {value}
+        </Typography>
+      </Box>
+    )
+  }
+
   return (
     <Card
       sx={{
-        width: '100%',
-        maxWidth: 340,
+        width: 340,
 
-        borderRadius: 5,
+        borderRadius: 6,
+        position: 'relative',
+pointerEvents: 'auto',
 
-        background: highlight
-          ? `linear-gradient(135deg, ${primaryColor}, #A52A2A)`
-          : '#fff',
+        background: isHead
+          ? 'linear-gradient(180deg,#FFF7F2 0%,#FFFFFF 100%)'
+          : '#FFFFFF',
 
-        color: highlight
-          ? '#fff'
-          : '#111827',
+        border: isHead
+          ? '2px solid #7A1E1E'
+          : '1px solid rgba(0,0,0,0.08)',
 
-        border: `1px solid rgba(122,30,30,0.10)`,
+        boxShadow: isHead
+          ? '0 20px 40px rgba(122,30,30,0.15)'
+          : '0 8px 24px rgba(0,0,0,0.08)',
 
-        boxShadow: highlight
-          ? '0 15px 40px rgba(122,30,30,0.28)'
-          : '0 8px 28px rgba(0,0,0,0.08)',
+        overflow: 'hidden',
 
         transition:
           'all .25s ease',
 
+        position: 'relative',
+
         '&:hover': {
           transform:
-            'translateY(-5px)',
+            'translateY(-6px)',
+
+          boxShadow:
+            '0 20px 40px rgba(0,0,0,0.12)',
         },
       }}
     >
-      <CardContent
+      {/* EDIT BUTTON */}
+
+<IconButton
+  onClick={(e) => {
+    e.stopPropagation()
+    onEdit(member)
+  }}
+  sx={{
+    position: 'absolute',
+    top: 12,
+    right: 12,
+
+    width: 38,
+    height: 38,
+
+    bgcolor: '#FFFFFF',
+
+    border:
+      '1px solid rgba(122,30,30,0.12)',
+
+    boxShadow:
+      '0 4px 12px rgba(0,0,0,0.08)',
+
+    zIndex: 999,
+
+    cursor: 'pointer',
+
+    '&:hover': {
+      bgcolor: '#FFF5F5',
+      transform: 'scale(1.05)',
+    },
+  }}
+>
+  <EditRoundedIcon
+    sx={{
+      fontSize: 18,
+      color: primary,
+    }}
+  />
+</IconButton>
+
+      {/* TOP HEADER */}
+
+      <Box
         sx={{
-          p: 2.5,
+          px: 3,
+          pt: 3,
+          pb: 2,
+
+          background: isHead
+            ? 'linear-gradient(135deg,#7A1E1E,#A52A2A)'
+            : '#FAFAFA',
         }}
       >
-        {/* TOP */}
-
         <Stack
           direction="row"
           spacing={2}
           alignItems="center"
         >
-          <Avatar
-            sx={{
-              width: 72,
-              height: 72,
+<Avatar
+  src={member?.profileImage}
+  sx={{
+    width: 72,
+    height: 72,
 
-              bgcolor: highlight
-                ? 'rgba(255,255,255,0.15)'
-                : softBg,
+    bgcolor: isHead
+      ? 'rgba(255,255,255,0.18)'
+      : 'rgba(122,30,30,0.10)',
 
-              color: highlight
-                ? '#fff'
-                : primaryColor,
+    color: isHead
+      ? '#FFFFFF'
+      : '#7A1E1E',
 
-              fontWeight: 800,
-              fontSize: 28,
-            }}
-          >
-            {member.firstName?.[0] ||
-              'P'}
-          </Avatar>
+    fontSize: 30,
+    fontWeight: 800,
+
+    border:
+      '3px solid rgba(255,255,255,0.20)',
+  }}
+>
+  {member?.firstName?.[0] || (
+    <PersonIcon />
+  )}
+</Avatar>
 
           <Box flex={1}>
             <Typography
               sx={{
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: 800,
-                lineHeight: 1.3,
+
+                color: isHead
+                  ? '#FFFFFF'
+                  : '#111827',
+
+                lineHeight: 1.2,
               }}
             >
-              {member.firstName}{' '}
-              {
-                member.middleName
-              }{' '}
-              {member.lastName}
+              {fullName || '-'}
             </Typography>
 
             <Stack
               direction="row"
               spacing={1}
-              mt={1}
+              mt={1.5}
               flexWrap="wrap"
+              useFlexGap
             >
               <Chip
                 size="small"
                 label={
-                  member.relationType
+                  member?.relationType
                 }
                 sx={{
-                  bgcolor: highlight
-                    ? 'rgba(255,255,255,0.14)'
-                    : softBg,
+                  bgcolor: isHead
+                    ? 'rgba(255,255,255,0.18)'
+                    : 'rgba(122,30,30,0.08)',
 
-                  color: highlight
-                    ? '#fff'
-                    : primaryColor,
+                  color: isHead
+                    ? '#FFFFFF'
+                    : '#7A1E1E',
 
                   fontWeight: 700,
                 }}
@@ -173,18 +300,18 @@ function FamilyMemberCard({
               <Chip
                 size="small"
                 label={
-                  member.isAlive
+                  member?.isAlive
                     ? 'Alive'
                     : 'Deceased'
                 }
                 sx={{
                   bgcolor:
-                    member.isAlive
+                    member?.isAlive
                       ? 'rgba(34,197,94,0.12)'
                       : 'rgba(239,68,68,0.12)',
 
                   color:
-                    member.isAlive
+                    member?.isAlive
                       ? '#16A34A'
                       : '#DC2626',
 
@@ -194,113 +321,201 @@ function FamilyMemberCard({
             </Stack>
           </Box>
         </Stack>
+      </Box>
 
-        <Divider
-          sx={{
-            my: 2,
-            borderColor: highlight
-              ? 'rgba(255,255,255,0.12)'
-              : 'rgba(0,0,0,0.08)',
-          }}
-        />
+      {/* DETAILS */}
 
-        {/* DETAILS */}
+      <CardContent
+        sx={{
+          p: 3,
+        }}
+      >
+        <Stack spacing={0.2}>
+          <DetailRow
+            label="Gender"
+            value={member?.gender}
+          />
 
-        <Stack spacing={1}>
-          <Typography
-            fontSize={14}
-          >
-            <b>Gender:</b>{' '}
-            {member.gender ||
-              '-'}
-          </Typography>
-
-          <Typography
-            fontSize={14}
-          >
-            <b>DOB:</b>{' '}
-            {formatDate(
-              member.dob
+          <DetailRow
+            label="DOB"
+            value={formatDate(
+              member?.dob
             )}
-          </Typography>
+          />
 
-          <Typography
-            fontSize={14}
-          >
-            <b>Occupation:</b>{' '}
-            {member.occupation ||
-              '-'}
-          </Typography>
-
-          <Typography
-            fontSize={14}
-          >
-            <b>Education:</b>{' '}
-            {member.education ||
-              '-'}
-          </Typography>
-
-          <Typography
-            fontSize={14}
-          >
-            <b>Mobile:</b>{' '}
-            {member.mobile ||
-              '-'}
-          </Typography>
-
-          <Typography
-            fontSize={14}
-          >
-            <b>Marital:</b>{' '}
-            {
-              member.maritalStatus
+          <DetailRow
+            label="Mobile"
+            value={
+              member?.mobile || '-'
             }
-          </Typography>
+          />
 
-          {(member.fatherFirstName ||
-            member.fatherLastName) && (
-            <Typography
-              fontSize={14}
-            >
-              <b>Father:</b>{' '}
-              {
-                member.fatherFirstName
-              }{' '}
-              {
-                member.fatherLastName
+          <DetailRow
+            label="Occupation"
+            value={
+              member?.occupation
+            }
+          />
+
+          <DetailRow
+            label="Education"
+            value={
+              member?.education
+            }
+          />
+
+          <DetailRow
+            label="Marital"
+            value={
+              member?.maritalStatus
+            }
+          />
+
+          {/* Husband */}
+
+          {member?.gender ===
+            'FEMALE' &&
+            member?.husbandName && (
+              <DetailRow
+                label="Husband"
+                value={
+                  member?.husbandName
+                }
+              />
+            )}
+
+          {/* Wife */}
+
+          {member?.gender ===
+            'MALE' &&
+            member?.wifeName && (
+              <DetailRow
+                label="Wife"
+                value={
+                  member?.wifeName
+                }
+              />
+            )}
+
+          {/* Father */}
+
+          <DetailRow
+            label="Father"
+            value={[
+              member?.fatherFirstName,
+              member?.fatherMiddleName,
+              member?.fatherLastName,
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          />
+
+          {/* Mother */}
+
+          <DetailRow
+            label="Mother"
+            value={[
+              member?.motherFirstName,
+              member?.motherMiddleName,
+              member?.motherLastName,
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          />
+
+          {/* Native Village */}
+
+          {[
+            'MOTHER',
+            'SPOUSE',
+          ].includes(
+            member?.relationType
+          ) && (
+            <DetailRow
+              label="Native Village"
+              value={
+                member?.nativeVillageName
               }
-            </Typography>
+            />
           )}
 
-          {(member.motherFirstName ||
-            member.motherLastName) && (
-            <Typography
-              fontSize={14}
-            >
-              <b>Mother:</b>{' '}
-              {
-                member.motherFirstName
-              }{' '}
-              {
-                member.motherLastName
-              }
-            </Typography>
-          )}
+          {/* Married Village */}
 
-          {!member.isAlive && (
-            <Typography
-              fontSize={14}
-              color="#DC2626"
-            >
-              <b>Death:</b>{' '}
-              {formatDate(
-                member.deathDate
-              )}
-            </Typography>
+          {[
+            'SISTER',
+            'DAUGHTER',
+            'GRANDDAUGHTER',
+          ].includes(
+            member?.relationType
+          ) && (
+            <DetailRow
+              label="Married Village"
+              value={
+                member?.marriedVillageName
+              }
+            />
           )}
         </Stack>
       </CardContent>
     </Card>
+  )
+}
+
+/* ───────────────── RELATION LINE ───────────────── */
+
+function VerticalLine() {
+  return (
+    <Box
+      sx={{
+        width: 3,
+        height: 45,
+        bgcolor: lineColor,
+        borderRadius: 20,
+      }}
+    />
+  )
+}
+
+/* ───────────────── COUPLE BLOCK ───────────────── */
+
+function CoupleBlock({
+  person,
+  spouse,
+  isHead = false,
+  onEdit,
+}) {
+  return (
+    <Stack
+      direction={{
+        xs: 'column',
+        lg: 'row',
+      }}
+      spacing={2}
+      alignItems="center"
+      justifyContent="center"
+    >
+      <MemberCard
+        member={person}
+        isHead={isHead}
+        onEdit={onEdit}
+      />
+
+      {spouse && (
+        <>
+          <FavoriteRoundedIcon
+            sx={{
+              color: '#EC4899',
+              fontSize: 34,
+            }}
+          />
+
+          <MemberCard
+            member={spouse}
+            onEdit={onEdit}
+          />
+        </>
+      )}
+    </Stack>
   )
 }
 
@@ -311,618 +526,590 @@ export default function ViewFamilyPage({
   onClose,
   familyId,
 }) {
-  const { data, isFetching } =
-    useQuery({
-      queryKey: [
-        'family-profile',
-        familyId,
-      ],
+  const [editOpen, setEditOpen] =
+    useState(false)
 
-      queryFn: () =>
-        getFamilyProfile(familyId),
+  const [selectedMember, setSelectedMember] =
+    useState(null)
 
-      enabled:
-        open && !!familyId,
-    })
+  const {
+    data,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      'family-profile',
+      familyId,
+    ],
+
+    queryFn: () =>
+      getFamilyProfile(familyId),
+
+    enabled:
+      open && !!familyId,
+  })
 
   const family = data?.family
 
   const members =
     data?.members || []
 
-  /* ───────────────── FIND MEMBERS ───────────────── */
-
-  const head =
+    const head =
     members.find(
       (m) =>
-        m.relationType === 'HEAD'
+        m.relationType ===
+        'HEAD'
     )
 
-  const parents = members.filter(
-    (m) =>
+  /* ───────────────── EDIT ───────────────── */
+
+  const handleEdit = (
+    member
+  ) => {
+    setSelectedMember(member)
+    setEditOpen(true)
+  }
+
+  /* ───────────────── SPOUSE FINDER ───────────────── */
+
+  const getSpouse =
+    useMemo(() => {
+      return (person) => {
+        return members.find(
+          (m) =>
+            m.relationType ===
+              'SPOUSE' &&
+            (
+              m.linkedPersonId ===
+                person?._id ||
+              m.spouseIds?.includes(
+                person?._id
+              ) ||
+              person?.spouseIds?.includes(
+                m._id
+              )
+            )
+        )
+      }
+    }, [members])
+
+  /* ───────────────── RELATION GROUPS ───────────────── */
+
+  const parents =
+    members.filter((m) =>
       [
         'FATHER',
         'MOTHER',
-      ].includes(m.relationType)
-  )
+      ].includes(
+        m.relationType
+      )
+    )
 
-  const children = members.filter(
-    (m) =>
-      [
-        'SON',
-        'DAUGHTER',
-      ].includes(m.relationType)
-  )
+  
 
-  const siblings = members.filter(
-    (m) =>
+  const siblings =
+    members.filter((m) =>
       [
         'BROTHER',
         'SISTER',
-      ].includes(m.relationType)
-  )
+      ].includes(
+        m.relationType
+      )
+    )
+
+  const children =
+    members.filter((m) =>
+      [
+        'SON',
+        'DAUGHTER',
+      ].includes(
+        m.relationType
+      )
+    )
 
   const grandChildren =
     members.filter((m) =>
       [
         'GRANDSON',
         'GRANDDAUGHTER',
-      ].includes(m.relationType)
+      ].includes(
+        m.relationType
+      )
     )
-
-  /* ───────────────── SPOUSE MAP ───────────────── */
-
-  const spouses = members.filter(
-    (m) =>
-      m.relationType ===
-      'SPOUSE'
-  )
-
-  const getSpouse = (
-    personId
-  ) => {
-    return spouses.find(
-      (s) =>
-        s.linkedPersonId ===
-          personId ||
-        s.spouseIds?.includes(
-          personId
-        )
-    )
-  }
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="xl"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 5,
-          overflow: 'hidden',
-          bgcolor: '#FFF8F3',
-        },
-      }}
-    >
-      {/* HEADER */}
-
-      <Box
-        sx={{
-          px: 4,
-          py: 3,
-
-          background: `linear-gradient(135deg, ${primaryColor}, #A52A2A)`,
-
-          color: '#fff',
-
-          display: 'flex',
-          justifyContent:
-            'space-between',
-
-          alignItems: 'center',
+    <>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="xl"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 5,
+            overflow: 'hidden',
+            bgcolor: lightBg,
+          },
         }}
       >
-        <Box>
-          <Typography
-            sx={{
-              fontSize: 30,
-              fontWeight: 800,
-            }}
-          >
-            Family Tree
-          </Typography>
+        {/* HEADER */}
 
-          <Typography
-            sx={{
-              fontSize: 14,
-              mt: 0.5,
-              opacity: 0.9,
-            }}
-          >
-            {family?.familyId}
-          </Typography>
-        </Box>
-
-        <Button
-          variant="contained"
-          onClick={onClose}
+        <Box
           sx={{
-            bgcolor: '#fff',
-            color: primaryColor,
-            fontWeight: 700,
+            px: 4,
+            py: 3,
 
-            '&:hover': {
-              bgcolor: '#f4f4f4',
-            },
+            background: `linear-gradient(135deg, ${primary}, #A52A2A)`,
+
+            color: '#fff',
+
+            display: 'flex',
+            justifyContent:
+              'space-between',
+
+            alignItems: 'center',
           }}
         >
-          Close
-        </Button>
-      </Box>
-
-      <DialogContent
-        sx={{
-          p: 4,
-          bgcolor: '#FFF8F3',
-        }}
-      >
-        {isFetching ? (
-          <Typography>
-            Loading...
-          </Typography>
-        ) : (
-          <>
-            {/* FAMILY SUMMARY */}
-
-            <Card
+          <Box>
+            <Typography
               sx={{
-                borderRadius: 5,
-                mb: 5,
-
-                background:
-                  'linear-gradient(135deg,#111827,#1F2937)',
-
-                color: '#fff',
-
-                boxShadow:
-                  '0 12px 40px rgba(0,0,0,0.18)',
+                fontSize: 30,
+                fontWeight: 800,
               }}
             >
-              <CardContent
-                sx={{
-                  p: 4,
-                }}
-              >
-                <Stack
-                  direction={{
-                    xs: 'column',
-                    md: 'row',
-                  }}
-                  spacing={3}
-                  alignItems="center"
-                >
-                  <Avatar
-                    sx={{
-                      width: 100,
-                      height: 100,
-
-                      bgcolor:
-                        'rgba(255,255,255,0.10)',
-
-                      color: '#fff',
-                    }}
-                  >
-                    <PersonIcon
-                      sx={{
-                        fontSize: 50,
-                      }}
-                    />
-                  </Avatar>
-
-                  <Box flex={1}>
-                    <Typography
-                      sx={{
-                        fontSize: 34,
-                        fontWeight: 800,
-                      }}
-                    >
-                      {
-                        family?.familyTitle
-                      }
-                    </Typography>
-
-                    <Stack
-                      direction="row"
-                      spacing={1.5}
-                      mt={2}
-                      flexWrap="wrap"
-                    >
-                      <Chip
-                        label={
-                          family?.familyId
-                        }
-                        sx={{
-                          bgcolor:
-                            'rgba(239,68,68,0.14)',
-
-                          color:
-                            '#FF6B6B',
-
-                          fontWeight: 700,
-                        }}
-                      />
-
-                      <Chip
-                        label={`${family?.totalMembers} Members`}
-                        sx={{
-                          bgcolor:
-                            'rgba(59,130,246,0.14)',
-
-                          color:
-                            '#60A5FA',
-
-                          fontWeight: 700,
-                        }}
-                      />
-
-                      <Chip
-                        label={
-                          family?.status ===
-                          1
-                            ? 'Active'
-                            : 'Inactive'
-                        }
-                        sx={{
-                          bgcolor:
-                            family?.status ===
-                            1
-                              ? 'rgba(34,197,94,0.14)'
-                              : 'rgba(239,68,68,0.14)',
-
-                          color:
-                            family?.status ===
-                            1
-                              ? '#4ADE80'
-                              : '#F87171',
-
-                          fontWeight: 700,
-                        }}
-                      />
-                    </Stack>
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-
-            {/* TREE TITLE */}
+              Family Tree
+            </Typography>
 
             <Typography
               sx={{
-                fontSize: 28,
-                fontWeight: 800,
-                color: primaryColor,
-                mb: 5,
-                textAlign: 'center',
+                fontSize: 14,
+                mt: 0.5,
+                opacity: 0.9,
               }}
             >
-              Family Hierarchy
+              {family?.familyId}
             </Typography>
+          </Box>
 
-            {/* TREE */}
+          <Button
+            variant="contained"
+            onClick={onClose}
+            sx={{
+              bgcolor: '#fff',
+              color: primary,
+              fontWeight: 700,
 
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection:
-                  'column',
+              '&:hover': {
+                bgcolor: '#F3F4F6',
+              },
+            }}
+          >
+            Close
+          </Button>
+        </Box>
 
-                alignItems:
-                  'center',
+        <DialogContent
+          sx={{
+            p: 4,
+            bgcolor: lightBg,
+          }}
+        >
+          {isFetching ? (
+            <Typography>
+              Loading...
+            </Typography>
+          ) : (
+            <>
+              {/* FAMILY HEADER */}
 
-                gap: 5,
-              }}
-            >
-              {/* PARENTS */}
+              <Card
+                sx={{
+                  mb: 5,
+                  borderRadius: 5,
+                  background:
+                    'linear-gradient(135deg,#FFFFFF,#FFF4EC)',
 
-              {parents.length >
-                0 && (
-                <Stack
-                  direction={{
-                    xs: 'column',
-                    md: 'row',
+                  border: `1px solid ${borderColor}`,
+
+                  boxShadow:
+                    '0 10px 35px rgba(0,0,0,0.06)',
+                }}
+              >
+                <CardContent
+                  sx={{
+                    p: 4,
                   }}
-                  spacing={4}
-                  justifyContent="center"
-                  alignItems="center"
-                  flexWrap="wrap"
                 >
-                  {parents.map(
-                    (member) => (
-                      <FamilyMemberCard
-                        key={
-                          member._id
+                  <Stack
+                    direction={{
+                      xs: 'column',
+                      md: 'row',
+                    }}
+                    spacing={3}
+                    alignItems="center"
+                  >
+                    <Avatar
+                      sx={{
+                        width: 95,
+                        height: 95,
+
+                        bgcolor:
+                          'rgba(122,30,30,0.10)',
+
+                        color: primary,
+                      }}
+                    >
+                      <PersonIcon
+                        sx={{
+                          fontSize: 50,
+                        }}
+                      />
+                    </Avatar>
+
+                    <Box flex={1}>
+                      <Typography
+                        sx={{
+                          fontSize: 34,
+                          fontWeight: 800,
+                          color:
+                            '#111827',
+                        }}
+                      >
+                        {
+                          family?.familyTitle
                         }
-                        member={
-                          member
+                      </Typography>
+
+                      <Stack
+                        direction="row"
+                        spacing={1.5}
+                        mt={2}
+                        flexWrap="wrap"
+                      >
+                        <Chip
+                          label={
+                            family?.familyId
+                          }
+                          sx={{
+                            bgcolor:
+                              'rgba(122,30,30,0.08)',
+
+                            color:
+                              primary,
+
+                            fontWeight: 700,
+                          }}
+                        />
+
+                        <Chip
+                          label={`${family?.totalMembers} Members`}
+                          sx={{
+                            bgcolor:
+                              'rgba(59,130,246,0.10)',
+
+                            color:
+                              '#2563EB',
+
+                            fontWeight: 700,
+                          }}
+                        />
+
+                        <Chip
+                          label={
+                            family?.status ===
+                            1
+                              ? 'Active'
+                              : 'Inactive'
+                          }
+                          sx={{
+                            bgcolor:
+                              family?.status ===
+                              1
+                                ? 'rgba(34,197,94,0.10)'
+                                : 'rgba(239,68,68,0.10)',
+
+                            color:
+                              family?.status ===
+                              1
+                                ? '#16A34A'
+                                : '#DC2626',
+
+                            fontWeight: 700,
+                          }}
+                        />
+                      </Stack>
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+
+              {/* TREE */}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection:
+                    'column',
+
+                  alignItems:
+                    'center',
+
+                  gap: 5,
+                }}
+              >
+                {/* PARENTS */}
+
+                {parents.length >
+                  0 && (
+                  <>
+                    <Typography
+                      sx={{
+                        fontSize: 24,
+                        fontWeight: 800,
+                        color: primary,
+                      }}
+                    >
+                      Parents
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display:
+                          'grid',
+
+                        gridTemplateColumns:
+                          {
+                            xs: '1fr',
+                            md: 'repeat(2,1fr)',
+                          },
+
+                        gap: 4,
+                        justifyItems:
+                          'center',
+                        width: '100%',
+                      }}
+                    >
+                      {parents.map(
+                        (
+                          parent
+                        ) => (
+                          <CoupleBlock
+                            key={
+                              parent._id
+                            }
+                            person={
+                              parent
+                            }
+                            spouse={null}
+                            onEdit={
+                              handleEdit
+                            }
+                          />
+                        )
+                      )}
+                    </Box>
+
+                    <VerticalLine />
+                  </>
+                )}
+
+                {/* MAIN FAMILY */}
+
+                <Typography
+                  sx={{
+                    fontSize: 24,
+                    fontWeight: 800,
+                    color: primary,
+                  }}
+                >
+                  Main Family
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: 'grid',
+
+                    gridTemplateColumns:
+                      {
+                        xs: '1fr',
+                        md: 'repeat(2,1fr)',
+                      },
+
+                    gap: 4,
+                    justifyItems:
+                      'center',
+                    width: '100%',
+                  }}
+                >
+                  {head && (
+                    <CoupleBlock
+                      person={head}
+                      spouse={getSpouse(
+                        head
+                      )}
+                      isHead
+                      onEdit={
+                        handleEdit
+                      }
+                    />
+                  )}
+
+                  {siblings.map(
+                    (sibling) => (
+                      <CoupleBlock
+                        key={
+                          sibling._id
+                        }
+                        person={
+                          sibling
+                        }
+                        spouse={getSpouse(
+                          sibling
+                        )}
+                        onEdit={
+                          handleEdit
                         }
                       />
                     )
                   )}
-                </Stack>
-              )}
+                </Box>
 
-              {/* CONNECTOR */}
+                {/* CHILDREN */}
 
-              <Box
-                sx={{
-                  width: 4,
-                  height: 45,
-                  bgcolor:
-                    '#D7B7A5',
-                  borderRadius: 20,
-                }}
-              />
-
-              {/* HEAD + SPOUSE */}
-
-              <Stack
-                direction={{
-                  xs: 'column',
-                  lg: 'row',
-                }}
-                spacing={4}
-                alignItems="center"
-                justifyContent="center"
-                flexWrap="wrap"
-              >
-                {head && (
-                  <FamilyMemberCard
-                    member={head}
-                    highlight
-                  />
-                )}
-
-                {getSpouse(
-                  head?._id
-                ) && (
+                {children.length >
+                  0 && (
                   <>
-                    <FavoriteIcon
+                    <VerticalLine />
+
+                    <Typography
                       sx={{
-                        color:
-                          '#EC4899',
-                        fontSize: 42,
+                        fontSize: 24,
+                        fontWeight: 800,
+                        color: primary,
                       }}
-                    />
+                    >
+                      Children
+                    </Typography>
 
-                    <FamilyMemberCard
-                      member={getSpouse(
-                        head?._id
-                      )}
-                    />
-                  </>
-                )}
-              </Stack>
+                    <Box
+                      sx={{
+                        display:
+                          'grid',
 
-              {/* CHILDREN */}
+                        gridTemplateColumns:
+                          {
+                            xs: '1fr',
+                            md: 'repeat(2,1fr)',
+                            xl: 'repeat(3,1fr)',
+                          },
 
-              {children.length >
-                0 && (
-                <>
-                  <Box
-                    sx={{
-                      width: 4,
-                      height: 45,
-                      bgcolor:
-                        '#D7B7A5',
-                      borderRadius: 20,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color:
-                        primaryColor,
-                    }}
-                  >
-                    Children
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      display:
-                        'grid',
-
-                      gridTemplateColumns:
-                        {
-                          xs: '1fr',
-                          md: 'repeat(2,1fr)',
-                          xl: 'repeat(3,1fr)',
-                        },
-
-                      gap: 4,
-                      width: '100%',
-                      justifyItems:
-                        'center',
-                    }}
-                  >
-                    {children.map(
-                      (
-                        child
-                      ) => {
-                        const spouse =
-                          getSpouse(
-                            child._id
-                          )
-
-                        return (
-                          <Stack
+                        gap: 4,
+                        justifyItems:
+                          'center',
+                        width: '100%',
+                      }}
+                    >
+                      {children.map(
+                        (
+                          child
+                        ) => (
+                          <CoupleBlock
                             key={
                               child._id
                             }
-                            spacing={
-                              2
+                            person={
+                              child
                             }
-                            alignItems="center"
-                          >
-                            <FamilyMemberCard
-                              member={
-                                child
-                              }
-                            />
-
-                            {spouse && (
-                              <>
-                                <FavoriteIcon
-                                  sx={{
-                                    color:
-                                      '#EC4899',
-                                  }}
-                                />
-
-                                <FamilyMemberCard
-                                  member={
-                                    spouse
-                                  }
-                                />
-                              </>
+                            spouse={getSpouse(
+                              child
                             )}
-                          </Stack>
+                            onEdit={
+                              handleEdit
+                            }
+                          />
                         )
-                      }
-                    )}
-                  </Box>
-                </>
-              )}
+                      )}
+                    </Box>
+                  </>
+                )}
 
-              {/* GRANDCHILDREN */}
+                {/* GRAND CHILDREN */}
 
-              {grandChildren.length >
-                0 && (
-                <>
-                  <Box
-                    sx={{
-                      width: 4,
-                      height: 45,
-                      bgcolor:
-                        '#D7B7A5',
-                      borderRadius: 20,
-                    }}
-                  />
+                {grandChildren.length >
+                  0 && (
+                  <>
+                    <VerticalLine />
 
-                  <Typography
-                    sx={{
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color:
-                        primaryColor,
-                    }}
-                  >
-                    Grand Children
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 24,
+                        fontWeight: 800,
+                        color: primary,
+                      }}
+                    >
+                      Grand Children
+                    </Typography>
 
-                  <Box
-                    sx={{
-                      display:
-                        'grid',
+                    <Box
+                      sx={{
+                        display:
+                          'grid',
 
-                      gridTemplateColumns:
-                        {
-                          xs: '1fr',
-                          sm: 'repeat(2,1fr)',
-                          lg: 'repeat(3,1fr)',
-                        },
+                        gridTemplateColumns:
+                          {
+                            xs: '1fr',
+                            sm: 'repeat(2,1fr)',
+                            xl: 'repeat(3,1fr)',
+                          },
 
-                      gap: 4,
-                      width: '100%',
-                      justifyItems:
-                        'center',
-                    }}
-                  >
-                    {grandChildren.map(
-                      (
-                        member
-                      ) => (
-                        <FamilyMemberCard
-                          key={
-                            member._id
-                          }
-                          member={
-                            member
-                          }
-                        />
-                      )
-                    )}
-                  </Box>
-                </>
-              )}
+                        gap: 4,
+                        justifyItems:
+                          'center',
+                        width: '100%',
+                      }}
+                    >
+                      {grandChildren.map(
+                        (
+                          grand
+                        ) => (
+                          <CoupleBlock
+                            key={
+                              grand._id
+                            }
+                            person={
+                              grand
+                            }
+                            spouse={getSpouse(
+                              grand
+                            )}
+                            onEdit={
+                              handleEdit
+                            }
+                          />
+                        )
+                      )}
+                    </Box>
+                  </>
+                )}
+              </Box>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
-              {/* SIBLINGS */}
+      {/* EDIT MEMBER DIALOG */}
 
-              {siblings.length >
-                0 && (
-                <>
-                  <Box
-                    sx={{
-                      width: 4,
-                      height: 45,
-                      bgcolor:
-                        '#D7B7A5',
-                      borderRadius: 20,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color:
-                        primaryColor,
-                    }}
-                  >
-                    Siblings
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      display:
-                        'grid',
-
-                      gridTemplateColumns:
-                        {
-                          xs: '1fr',
-                          md: 'repeat(2,1fr)',
-                        },
-
-                      gap: 4,
-                      width: '100%',
-                      justifyItems:
-                        'center',
-                    }}
-                  >
-                    {siblings.map(
-                      (
-                        member
-                      ) => (
-                        <FamilyMemberCard
-                          key={
-                            member._id
-                          }
-                          member={
-                            member
-                          }
-                        />
-                      )
-                    )}
-                  </Box>
-                </>
-              )}
-            </Box>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+      <EditMemberPage
+        open={editOpen}
+        onClose={() =>
+          setEditOpen(false)
+        }
+        member={selectedMember}
+        onSuccess={() => {
+          refetch()
+          setEditOpen(false)
+        }}
+      />
+    </>
   )
 }

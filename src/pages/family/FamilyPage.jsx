@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import ViewFamilyPage from './ViewFamilyPage'
+import AddMemberPage from './AddMemberPage'
+import FamilyFormPage from './FamilyFormPage'
+
 import {
   useQuery,
 } from '@tanstack/react-query'
@@ -16,11 +19,6 @@ import {
   MenuItem,
   InputAdornment,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Divider,
-  Grid,
   IconButton,
   Tooltip,
 } from '@mui/material'
@@ -42,60 +40,71 @@ import DataTable from '../../components/common/DataTable'
 
 const getFamilies = (params) =>
   api
-    .get('/admin/family/getAllFamilies', {
-      params,
-    })
-    .then((r) => r.data.responseBody)
-
-const getFamilyProfile = (
-  familyId
-) =>
-  api
-    .get('/admin/family/profile', {
-      params: {
-        familyId,
-      },
-    })
-    .then((r) => r.data.responseBody)
+    .get(
+      '/admin/family/getAllFamilies',
+      {
+        params,
+      }
+    )
+    .then(
+      (r) => r.data.responseBody
+    )
 
 const getDistricts = () =>
   api
-    .get('/admin/district/getAllDistrict', {
-      params: {
-        pageIndex: 0,
-        pageSize: 100,
-        status: 1,
-      },
-    })
-    .then((r) => r.data.responseBody)
+    .get(
+      '/admin/district/getAllDistrict',
+      {
+        params: {
+          pageIndex: 0,
+          pageSize: 100,
+          status: 1,
+        },
+      }
+    )
+    .then(
+      (r) => r.data.responseBody
+    )
 
-const getTehsils = (districtId) =>
+const getTehsils = (
+  districtId
+) =>
   api
-    .get('/admin/tehsil/getAllTehsil', {
-      params: {
-        pageIndex: 0,
-        pageSize: 100,
-        status: 1,
-        districtId,
-      },
-    })
-    .then((r) => r.data.responseBody)
+    .get(
+      '/admin/tehsil/getAllTehsil',
+      {
+        params: {
+          pageIndex: 0,
+          pageSize: 100,
+          status: 1,
+          districtId,
+        },
+      }
+    )
+    .then(
+      (r) => r.data.responseBody
+    )
 
 const getVillages = (
   districtId,
   tehsilId
 ) =>
   api
-    .get('/admin/village/getAllVillage', {
-      params: {
-        pageIndex: 0,
-        pageSize: 100,
-        status: 1,
-        districtId,
-        tehsilId,
-      },
-    })
-    .then((r) => r.data.responseBody)
+    .get(
+      '/admin/village/getAllVillage',
+      {
+        params: {
+          pageIndex: 0,
+          pageSize: 100,
+          status: 1,
+          districtId,
+          tehsilId,
+        },
+      }
+    )
+    .then(
+      (r) => r.data.responseBody
+    )
 
 /* ───────────────── FILTER STYLE ───────────────── */
 
@@ -143,7 +152,8 @@ function StatCard({
         background:
           'rgba(255,255,255,0.65)',
 
-        backdropFilter: 'blur(14px)',
+        backdropFilter:
+          'blur(14px)',
 
         border:
           '1px solid rgba(122,30,30,0.12)',
@@ -213,16 +223,16 @@ function StatCard({
   )
 }
 
-
-
 /* ───────────────── PAGE ───────────────── */
 
 export default function FamilyPage() {
   const [page, setPage] =
     useState(0)
 
-  const [pageSize, setPageSize] =
-    useState(10)
+  const [
+    pageSize,
+    setPageSize,
+  ] = useState(10)
 
   const [search, setSearch] =
     useState('')
@@ -252,6 +262,20 @@ export default function FamilyPage() {
     setProfileOpen,
   ] = useState(false)
 
+  const [
+    addMemberOpen,
+    setAddMemberOpen,
+  ] = useState(false)
+
+  const [
+  familyFormOpen,
+  setFamilyFormOpen,
+] = useState(false)
+
+const [
+  selectedFamily,
+  setSelectedFamily,
+] = useState(null)
   /* ───────────────── FAMILY DATA ───────────────── */
 
   const {
@@ -271,6 +295,7 @@ export default function FamilyPage() {
     queryFn: () =>
       getFamilies({
         pageIndex: page,
+
         pageSize,
 
         searchText:
@@ -310,7 +335,8 @@ export default function FamilyPage() {
         selectedDistrict
       ),
 
-    enabled: !!selectedDistrict,
+    enabled:
+      !!selectedDistrict,
   })
 
   const {
@@ -594,28 +620,36 @@ export default function FamilyPage() {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Edit">
-            <IconButton
-              size="small"
-              sx={{
-                color: '#E31E24',
+     
 
-                bgcolor:
-                  'rgba(227,30,36,0.08)',
+<Tooltip title="Edit">
+  <IconButton
+    size="small"
+    onClick={() => {
 
-                '&:hover': {
-                  bgcolor:
-                    'rgba(227,30,36,0.18)',
-                },
-              }}
-            >
-              <EditIcon
-                sx={{
-                  fontSize: 18,
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+      setSelectedFamily(r)
+
+      setFamilyFormOpen(true)
+    }}
+    sx={{
+      color: '#E31E24',
+
+      bgcolor:
+        'rgba(227,30,36,0.08)',
+
+      '&:hover': {
+        bgcolor:
+          'rgba(227,30,36,0.18)',
+      },
+    }}
+  >
+    <EditIcon
+      sx={{
+        fontSize: 18,
+      }}
+    />
+  </IconButton>
+</Tooltip>
 
           <Tooltip title="Block">
             <IconButton
@@ -644,6 +678,39 @@ export default function FamilyPage() {
     },
   ]
 
+
+
+  /* ───────────────── ADD MEMBER PAGE ───────────────── */
+
+  if (addMemberOpen) {
+    return (
+      <AddMemberPage
+        familyId={
+          selectedFamilyId
+        }
+        onBack={() =>
+          setAddMemberOpen(false)
+        }
+      />
+    )
+  }
+
+if (familyFormOpen) {
+
+  return (
+    <FamilyFormPage
+      family={selectedFamily}
+      onBack={() => {
+
+        setFamilyFormOpen(false)
+
+        setSelectedFamily(null)
+      }}
+    />
+  )
+}
+  /* ───────────────── MAIN PAGE ───────────────── */
+
   return (
     <Box>
       {/* HEADER */}
@@ -667,20 +734,55 @@ export default function FamilyPage() {
         >
           Family Management
         </Typography>
+<Stack direction="row" spacing={2}>
+  <Button
+    variant="outlined"
+    onClick={() => {
+      setSelectedFamilyId('')
+      setAddMemberOpen(true)
+    }}
+    sx={{
+      borderRadius: 3,
+      textTransform: 'none',
+      borderColor: '#D0D5DD',
+      color: '#344054',
+      px: 3,
+      bgcolor: '#FFF',
 
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{
-            bgcolor: '#E31E24',
+      '&:hover': {
+        borderColor: '#BFC6D4',
+        bgcolor: '#F9FAFB',
+      },
+    }}
+  >
+    Add New Member
+  </Button>
 
-            '&:hover': {
-              bgcolor: '#c41920',
-            },
-          }}
-        >
-          Add Family
-        </Button>
+<Button
+  variant="contained"
+  onClick={() => {
+
+    setSelectedFamily(null)
+
+    setFamilyFormOpen(true)
+  }}
+  sx={{
+    bgcolor: '#7C3AED',
+    borderRadius: 3,
+    textTransform: 'none',
+    px: 3,
+
+    boxShadow:
+      '0 8px 20px rgba(124,58,237,0.25)',
+
+    '&:hover': {
+      bgcolor: '#6D28D9',
+    },
+  }}
+>
+  Add Family
+</Button>
+</Stack>
       </Box>
 
       {/* STATS */}
@@ -898,22 +1000,25 @@ export default function FamilyPage() {
         page={page}
         pageSize={pageSize}
         onPageChange={setPage}
-        onPageSizeChange={(s) => {
+        onPageSizeChange={(
+          s
+        ) => {
           setPageSize(s)
           setPage(0)
         }}
         loading={isFetching}
       />
 
-      {/* PROFILE DIALOG */}
+      {/* VIEW FAMILY */}
 
       <ViewFamilyPage
-  open={profileOpen}
-  familyId={selectedFamilyId}
-  onClose={() =>
-    setProfileOpen(false)
-  }
-/>
+        open={profileOpen}
+        familyId={
+          selectedFamilyId
+        }
+        onClose={() =>
+          setProfileOpen(false)
+        }
+      />
     </Box>
-  )
-}
+  )}
