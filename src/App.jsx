@@ -11,7 +11,7 @@ import LoginPage from './pages/auth/LoginPage'
 
 import AdminLayout from './components/layout/AdminLayout'
 
-import UsersPage from './pages/users/UsersPage'
+import StaffUserPage from './pages/users/StaffUserPage'
 import RolesPage from './pages/roles/RolesPage'
 import ModulesPage from './pages/modules/ModulesPage'
 
@@ -23,6 +23,8 @@ import VillagePage from './pages/locations/VillagePage'
 
 import ProtectedRoute from './components/common/ProtectedRoute'
 import FamilyPage from './pages/family/FamilyPage'
+import DharamshalaPage from './pages/dharamshala/DharamshalaPage'
+import DharamshalaDetailPage from './pages/dharamshala/DharamshalaDetailPage'
 
 export default function App() {
   return (
@@ -65,7 +67,7 @@ export default function App() {
           {/* USERS */}
           <Route
             path="users"
-            element={<UsersPage />}
+            element={<StaffUserPage />}
           />
 
           {/* ROLES */}
@@ -114,6 +116,18 @@ export default function App() {
             path="village"
             element={<VillagePage />}
           />
+
+          {/* DHARAMSHALA */}
+          <Route
+            path="dharamshala"
+            element={<DharamshalaPage />}
+          />
+
+          <Route
+            path="/dharamshala/details/:id"
+            element={<DharamshalaDetailPage />}
+          />
+
         </Route>
 
         {/* FALLBACK */}
