@@ -172,13 +172,29 @@ export default function AdminLayout() {
     user?.roleResponse
       ?.roleModuleList ?? []
 
-  const navItems = moduleList
-    .filter(
-      (m) =>
-        m.moduleAction === 1 &&
-        m.status === 1
-    )
-    .map((m) => {
+const navItems = moduleList
+  .filter(
+    (m) =>
+      m.moduleAction === 1 &&
+      m.status === 1
+  )
+  .sort((a, b) => {
+    const aDashboard =
+      a.moduleCode
+        ?.toLowerCase()
+        .trim() === 'dashboard'
+
+    const bDashboard =
+      b.moduleCode
+        ?.toLowerCase()
+        .trim() === 'dashboard'
+
+    if (aDashboard) return -1
+    if (bDashboard) return 1
+
+    return 0
+  })
+  .map((m) => {
       const key = m.moduleCode
         ?.toLowerCase()
         .trim()
@@ -502,14 +518,22 @@ export default function AdminLayout() {
                     {icon}
                   </ListItemIcon>
 
-                  <ListItemText
-                    primary={label}
-                    primaryTypographyProps={{
-                      fontSize: 13,
-
-                      fontWeight: 500,
-                    }}
-                  />
+<ListItemText
+  primary={label}
+  primaryTypographyProps={{
+    fontSize: 13,
+    fontWeight: 500,
+    noWrap: true,
+    sx: {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+  }}
+  sx={{
+    overflow: 'hidden',
+  }}
+/>
 
                   {children ? (
                     openLocation ? (

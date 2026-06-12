@@ -122,7 +122,7 @@ export default function App() {
             path="dharamshala"
             element={<DharamshalaPage />}
           />
-
+          {/* DHARAMSHALA DETAILS */}
           <Route
             path="/dharamshala/details/:id"
             element={<DharamshalaDetailPage />}

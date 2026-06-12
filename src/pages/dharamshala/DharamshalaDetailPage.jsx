@@ -4,6 +4,8 @@ import BlockIcon from '@mui/icons-material/Block'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'
 
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -20,7 +22,7 @@ import {
   CardContent,
   Chip,
   Stack,
-  Grid,
+  
   IconButton,
   Button,
   Divider,
@@ -38,6 +40,51 @@ import HomeWorkIcon from '@mui/icons-material/HomeWork'
 
 import api from '../../api/axiosInstance'
 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+} from '@mui/material'
+
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import Autocomplete from '@mui/material/Autocomplete'
+
+const searchUsers = async (
+  searchText = ''
+) => {
+  const response =
+    await api.get(
+      `/admin/user/getAllUser?pageIndex=0&pageSize=50&searchText=${searchText}`
+    )
+
+  return (
+    response.data.responseBody
+      ?.content || []
+  )
+}
+const saveCommittee = async (payload) => {
+  const response = await api.post(
+    '/admin/dharamshala/addCommittee',
+    payload
+  )
+
+  return response.data
+}
+
+const blockUnblockCommittee =
+  async (payload) => {
+    const response =
+      await api.post(
+        '/admin/dharamshala/blockUnblockCommittee',
+        payload
+      )
+
+    return response.data
+  }
 const getDharamshalaById = async (
   id
 ) => {
@@ -48,6 +95,39 @@ const getDharamshalaById = async (
   return response.data.responseBody
 }
 
+const updateDharamshala =
+  async (form) => {
+    const formData =
+      new FormData()
+
+    Object.entries(form).forEach(
+      ([key, value]) => {
+        if (
+          value !== null &&
+          value !== undefined
+        ) {
+          formData.append(
+            key,
+            value
+          )
+        }
+      }
+    )
+
+    const response =
+      await api.post(
+        '/admin/dharamshala/addDharamshala',
+        formData,
+        {
+          headers: {
+            'Content-Type':
+              'multipart/form-data',
+          },
+        }
+      )
+
+    return response.data
+  }
 const getRoleColor = (role) => {
   switch (role) {
     case 'PRESIDENT':
@@ -125,8 +205,156 @@ function StatCard({
   )
 }
 
+
 export default function DharamshalaDetailPage() {
   const { id } = useParams()
+
+const fieldStyle = {
+  '& .MuiOutlinedInput-root': {
+    bgcolor: '#fff',
+
+    '& fieldset': {
+      borderColor: '#E7D4C7',
+    },
+
+    '&:hover fieldset': {
+      borderColor: '#9C7A3B',
+    },
+
+    '&.Mui-focused fieldset': {
+      borderColor: '#7A1E1E',
+    },
+  },
+
+  '& .MuiInputLabel-root': {
+    color: '#9C7A3B',
+    backgroundColor: '#fff',
+    px: 0.5,
+  },
+
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#7A1E1E',
+  },
+
+  '& .MuiInputBase-input': {
+    color: '#1E1E1E',
+    WebkitTextFillColor: '#1E1E1E',
+  },
+
+  '& textarea': {
+    color: '#1E1E1E',
+    WebkitTextFillColor: '#1E1E1E',
+  },
+
+  '& .MuiInputBase-root': {
+    color: '#1E1E1E !important',
+  },
+
+  '& .MuiSelect-select': {
+    color: '#1E1E1E !important',
+    WebkitTextFillColor:
+      '#1E1E1E !important',
+  },
+
+
+}
+  const queryClient = useQueryClient()
+
+  const committeeMutation = useMutation({
+  mutationFn: saveCommittee,
+
+  onSuccess: () => {
+    setOpenCommitteeDialog(false)
+
+    queryClient.invalidateQueries({
+      queryKey: [
+        'dharamshala-detail',
+        id,
+      ],
+    })
+  },
+})
+
+const statusMutation =
+  useMutation({
+    mutationFn:
+      blockUnblockCommittee,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          'dharamshala-detail',
+          id,
+        ],
+      })
+    },
+  })
+
+  const updateMutation =
+  useMutation({
+    mutationFn:
+      updateDharamshala,
+
+    onSuccess: () => {
+      setOpenEditDialog(false)
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          'dharamshala-detail',
+          id,
+        ],
+      })
+    },
+  })
+const [userSearch, setUserSearch] =
+  useState('')
+
+const { data: users = [] } =
+  useQuery({
+    queryKey: [
+      'committee-users',
+      userSearch,
+    ],
+
+    queryFn: () =>
+      searchUsers(userSearch),
+
+    staleTime: 60000,
+
+    keepPreviousData: true,
+  })
+const [openCommitteeDialog, setOpenCommitteeDialog] =
+  useState(false)
+
+const [committeeForm, setCommitteeForm] =
+  useState({
+    id: '',
+    userId: '',
+    committeeRole: '',
+    joiningDate: '',
+    endDate: '',
+    remarks: '',
+    status: 1,
+  })
+
+const [openEditDialog, setOpenEditDialog] =
+  useState(false)
+
+const [dharamshalaForm, setDharamshalaForm] =
+  useState({
+    id: '',
+    name: '',
+    villageId: '',
+    mobileNumber: '',
+    alternateMobileNumber: '',
+    email: '',
+    website: '',
+    address: '',
+    establishedYear: '',
+    description: '',
+    profileImageFile: null,
+    bannerImageFile: null,
+  })
 const navigate = useNavigate()
   const {
     data,
@@ -284,9 +512,10 @@ src={
       spacing={1}
     >
       {/* EDIT */}
-      <IconButton
-        size="small"
-        sx={{
+
+       <IconButton
+  size="small"
+  sx={{
           color: '#E31E24',
           bgcolor: 'rgba(227,30,36,0.08)',
 
@@ -294,53 +523,115 @@ src={
             bgcolor: 'rgba(227,30,36,0.18)',
           },
         }}
-      >
-        <EditIcon sx={{ fontSize: 18 }} />
-      </IconButton>
+  onClick={() => {
+    setCommitteeForm({
+      id: row.id,
+      userId:
+        row.userResponse?.id || '',
 
-      {/* ACTIVE / INACTIVE */}
-      <IconButton
-        size="small"
-        sx={{
-          color:
-            row.status === 1
-              ? '#f59e0b'
-              : '#22c55e',
+      committeeRole:
+        row.committeeRole || '',
 
-          bgcolor:
-            row.status === 1
-              ? 'rgba(245,158,11,0.08)'
-              : 'rgba(34,197,94,0.08)',
+      joiningDate:
+        row.joiningDate
+          ?.split('T')[0],
 
-          '&:hover': {
-            bgcolor:
-              row.status === 1
-                ? 'rgba(245,158,11,0.18)'
-                : 'rgba(34,197,94,0.18)',
-          },
-        }}
-      >
-        {row.status === 1 ? (
-          <BlockIcon sx={{ fontSize: 18 }} />
-        ) : (
-          <CheckCircleIcon sx={{ fontSize: 18 }} />
-        )}
-      </IconButton>
+      endDate:
+        row.endDate
+          ?.split('T')[0] || '',
 
-      {/* DELETE */}
-      <IconButton
-        size="small"
-        sx={{
-          color: '#ef4444',
-          bgcolor: 'rgba(239,68,68,0.08)',
+      remarks:
+        row.remarks || '',
 
-          '&:hover': {
-            bgcolor: 'rgba(239,68,68,0.18)',
-          },
-        }}
-      >
-        <DeleteIcon sx={{ fontSize: 18 }} />
-      </IconButton>
+      status:
+        row.status || 1,
+    })
+
+    setOpenCommitteeDialog(true)
+  }}
+>
+  <EditIcon />
+</IconButton>
+{/* ACTIVE / INACTIVE */}
+
+<IconButton
+  size="small"
+
+  onClick={() =>
+    statusMutation.mutate({
+      id: row.id,
+
+      status:
+        row.status === 1
+          ? 2
+          : 1,
+    })
+  }
+
+  sx={{
+    color:
+      row.status === 1
+        ? '#f59e0b'
+        : '#22c55e',
+
+    bgcolor:
+      row.status === 1
+        ? 'rgba(245,158,11,0.08)'
+        : 'rgba(34,197,94,0.08)',
+
+    '&:hover': {
+      bgcolor:
+        row.status === 1
+          ? 'rgba(245,158,11,0.18)'
+          : 'rgba(34,197,94,0.18)',
+    },
+  }}
+>
+  {statusMutation.isPending ? (
+    <CircularProgress
+      size={18}
+    />
+  ) : row.status === 1 ? (
+    <BlockIcon
+      sx={{
+        fontSize: 18,
+      }}
+    />
+  ) : (
+    <CheckCircleIcon
+      sx={{
+        fontSize: 18,
+      }}
+    />
+  )}
+</IconButton>
+
+    {/* DELETE */}
+{/* DELETE */}
+<IconButton
+  size="small"
+  disabled={statusMutation.isPending}
+  onClick={() =>
+    statusMutation.mutate({
+      id: row.id,
+      status: 0,
+    })
+  }
+  sx={{
+    color: '#ef4444',
+    bgcolor: 'rgba(239,68,68,0.08)',
+
+    '&:hover': {
+      bgcolor: 'rgba(239,68,68,0.18)',
+    },
+  }}
+>
+  {statusMutation.isPending ? (
+    <CircularProgress size={18} />
+  ) : (
+    <DeleteIcon sx={{ fontSize: 18 }} />
+  )}
+</IconButton>
     </Stack>
   ),
 }
@@ -397,91 +688,160 @@ const isSuperAdmin =
 </Box>
     {/* HERO */}
 
-    <Card
+<Card
+  sx={{
+    overflow: 'hidden',
+    borderRadius: 4,
+    mb: 4,
+  }}
+>
+  <Box
+    sx={{
+      height: 450,
+      position: 'relative',
+    }}
+  >
+    {/* EDIT BUTTON */}
+    <IconButton
+      onClick={() => {
+        setDharamshalaForm({
+          id: data.id,
+          name: data.name || '',
+          villageId: data.villageId || '',
+          mobileNumber:
+            data.mobileNumber || '',
+
+          alternateMobileNumber:
+            data.alternateMobileNumber ||
+            '',
+
+          email: data.email || '',
+
+          website:
+            data.website || '',
+
+          address:
+            data.address || '',
+
+          establishedYear:
+            data.establishedYear ||
+            '',
+
+          description:
+            data.description || '',
+
+          profileImageFile:
+            null,
+
+          bannerImageFile:
+            null,
+        })
+
+        setOpenEditDialog(true)
+      }}
       sx={{
-        overflow: 'hidden',
-        borderRadius: 4,
-        mb: 4,
+        position: 'absolute',
+        top: 20,
+        right: 20,
+
+        zIndex: 10,
+
+        width: 52,
+        height: 52,
+
+        bgcolor:
+          'rgba(255,255,255,.92)',
+
+        backdropFilter:
+          'blur(10px)',
+
+        boxShadow:
+          '0 8px 20px rgba(0,0,0,.18)',
+
+        '&:hover': {
+          bgcolor: '#fff',
+          transform:
+            'scale(1.05)',
+        },
       }}
     >
-      <Box
+      <EditIcon
         sx={{
-          height: 450,
-          position: 'relative',
+          color: '#7A1E1E',
+          fontSize: 24,
         }}
-      >
-        <Box
-          component="img"
-                    src={
-            data.bannerImage ||
-            data.profileImage ||
-            DEFAULT_BANNER
-            }
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
+      />
+    </IconButton>
 
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            background:
-'linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.10))'
-          }}
-        />
+    {/* BANNER */}
+    <Box
+      component="img"
+      src={
+        data.bannerImage ||
+        data.profileImage ||
+        DEFAULT_BANNER
+      }
+      sx={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+      }}
+    />
 
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 30,
-            left: 30,
-            display: 'flex',
-            gap: 3,
-            alignItems: 'center',
-          }}
+    {/* OVERLAY */}
+    <Box
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        background:
+          'linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.10))',
+      }}
+    />
+
+    {/* PROFILE */}
+    <Box
+      sx={{
+        position: 'absolute',
+        bottom: 30,
+        left: 30,
+        display: 'flex',
+        gap: 3,
+        alignItems: 'center',
+      }}
+    >
+      <Avatar
+        src={
+          data.profileImage ||
+          DEFAULT_PROFILE
+        }
+        sx={{
+          width: 120,
+          height: 120,
+          border:
+            '4px solid white',
+        }}
+      />
+
+      <Box>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          color="#fff"
         >
-          <Avatar
-src={
-  data.profileImage ||
-  DEFAULT_PROFILE
-}
-            sx={{
-              width: 120,
-              height: 120,
-              border:
-                '4px solid white',
-            }}
-          />
+          {data.name}
+        </Typography>
 
-          <Box>
-            <Typography
-              variant="h4"
-              fontWeight={700}
-              color="#fff"
-            >
-              {data.name}
-            </Typography>
+        <Typography color="#fff">
+          {data.villageName}
+        </Typography>
 
-            <Typography
-              color="#fff"
-            >
-              {
-                data.villageName
-              }
-            </Typography>
-
-            <Typography
-              color="#fff"
-            >
-              {data.address}
-            </Typography>
-          </Box>
-        </Box>
+        <Typography color="#fff">
+          {data.address}
+        </Typography>
       </Box>
-    </Card>
+    </Box>
+  </Box>
+</Card>
 
     {/* STATS */}
 
@@ -569,6 +929,62 @@ src={
 >
   {data.description || 'No description available'}
 </Typography>
+
+
+<Box
+  sx={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1.2,
+  }}
+>
+  <LanguageIcon
+    sx={{
+      color: '#7A1E1E',
+      fontSize: 20,
+    }}
+  />
+
+  {data.website ? (
+    <Typography
+      component="a"
+      href={
+        data.website.startsWith(
+          'http'
+        )
+          ? data.website
+          : `https://${data.website}`
+      }
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={{
+        color: '#2563EB',
+        fontSize: 14,
+        fontWeight: 600,
+
+        textDecoration:
+          'none',
+
+        '&:hover': {
+          textDecoration:
+            'underline',
+        },
+      }}
+    >
+      {data.website}
+    </Typography>
+  ) : (
+    <Typography
+      sx={{
+        color: '#9CA3AF',
+        fontSize: 14,
+        fontStyle: 'italic',
+      }}
+    >
+      Website not available
+    </Typography>
+  )}
+</Box>
       </CardContent>
     </Card>
 
@@ -583,23 +999,38 @@ src={
         mb: 2,
       }}
     >
-      <Typography
-        variant="h6"
-        fontWeight={700}
-        color="#7A1E1E"
-      >
-        Committee Members
-      </Typography>
+<Typography
+  variant="h6"
+  sx={{
+    color: '#7A1E1E !important',
+    fontWeight: 700,
+  }}
+>
+  Committee Members
+</Typography>
 
-      <Button
-        startIcon={<AddIcon />}
-        variant="contained"
-        sx={{
-          bgcolor: '#7C3AED',
-        }}
-      >
-        Add Member
-      </Button>
+<Button
+  startIcon={<AddIcon />}
+  variant="contained"
+  sx={{
+    bgcolor: '#7C3AED',
+  }}
+  onClick={() => {
+    setCommitteeForm({
+      id: '',
+      userId: '',
+      committeeRole: '',
+      joiningDate: '',
+      endDate: '',
+      remarks: '',
+      status: 1,
+    })
+
+    setOpenCommitteeDialog(true)
+  }}
+>
+  Add Member
+</Button>
     </Box>
 
     <DataTable
@@ -618,6 +1049,680 @@ src={
       onPageChange={() => {}}
       onPageSizeChange={() => {}}
     />
+
+<Dialog
+  open={openCommitteeDialog}
+  onClose={() =>
+    setOpenCommitteeDialog(false)
+  }
+  maxWidth="sm"
+  fullWidth
+  PaperProps={{
+    sx: {
+      bgcolor: '#FFFDF8',
+      borderRadius: 4,
+      border:
+        '1px solid rgba(122,30,30,0.12)',
+      overflow: 'hidden',
+    },
+  }}
+>
+  {/* HEADER */}
+
+  <DialogTitle
+    sx={{
+      bgcolor: '#FFF7F0',
+      color: '#7A1E1E',
+      fontWeight: 700,
+      borderBottom:
+        '1px solid rgba(122,30,30,0.10)',
+
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    }}
+  >
+    {committeeForm.id
+      ? 'Edit Committee'
+      : 'Add Committee'}
+
+    <IconButton
+      onClick={() =>
+        setOpenCommitteeDialog(false)
+      }
+    >
+      <CloseIcon />
+    </IconButton>
+  </DialogTitle>
+
+<Divider
+  sx={{
+    borderColor:
+      'rgba(122,30,30,0.12)',
+  }}
+/>
+  {/* CONTENT */}
+
+  <DialogContent
+    sx={{
+      bgcolor: '#FFFFFF',
+      pt: 3,
+    }}
+  >
+    <Stack spacing={2} mt={1}>
+
+<Autocomplete
+  options={users}
+
+  value={
+    users.find(
+      (u) =>
+        String(u.id) ===
+        String(
+          committeeForm.userId
+        )
+    ) || null
+  }
+
+  getOptionLabel={(option) =>
+    option?.name || ''
+  }
+
+  isOptionEqualToValue={(
+    option,
+    value
+  ) =>
+    String(option.id) ===
+    String(value?.id)
+  }
+
+  onInputChange={(
+    _,
+    value
+  ) => {
+    setUserSearch(value)
+  }}
+
+  onChange={(
+    _,
+    value
+  ) => {
+    setCommitteeForm(
+      (prev) => ({
+        ...prev,
+        userId:
+          value?.id || '',
+      })
+    )
+  }}
+
+  slotProps={{
+    paper: {
+      sx: {
+        bgcolor:
+          '#FFFFFF !important',
+
+        color:
+          '#111827 !important',
+
+        border:
+          '1px solid #E7D4C7',
+
+        borderRadius: 3,
+
+        '& .MuiAutocomplete-option':
+          {
+            bgcolor:
+              '#FFFFFF !important',
+
+            color:
+              '#111827 !important',
+          },
+
+        '& .MuiAutocomplete-option:hover':
+          {
+            bgcolor:
+              '#FFF7F0 !important',
+          },
+
+        '& .MuiAutocomplete-option.Mui-focused':
+          {
+            bgcolor:
+              '#FFF3E0 !important',
+          },
+      },
+    },
+  }}
+
+  renderOption={(
+    props,
+    option
+  ) => (
+    <Box
+      component="li"
+      {...props}
+      key={option.id}
+      sx={{
+        display:
+          'flex',
+        alignItems:
+          'center',
+        gap: 1.5,
+        py: 1,
+        bgcolor:
+          '#fff !important',
+      }}
+    >
+      <Avatar
+        src={
+          option.profileImage ||
+          DEFAULT_PROFILE
+        }
+        sx={{
+          width: 42,
+          height: 42,
+        }}
+      />
+
+      <Box>
+        <Typography
+          sx={{
+            color:
+              '#111827',
+            fontWeight: 700,
+            fontSize: 14,
+          }}
+        >
+          {option.name}
+        </Typography>
+
+        <Typography
+          sx={{
+            color:
+              '#6B7280',
+            fontSize: 12,
+          }}
+        >
+          {option.mobileNumber}
+        </Typography>
+      </Box>
+    </Box>
+  )}
+
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Select User"
+      placeholder="Search by name / mobile"
+
+      sx={{
+        ...fieldStyle,
+
+        '& .MuiOutlinedInput-root':
+          {
+            bgcolor:
+              '#FFFFFF',
+          },
+
+        '& input': {
+          color:
+            '#111827 !important',
+        },
+      }}
+    />
+  )}
+/>
+
+      <TextField
+        select
+        label="Role"
+        value={
+          committeeForm.committeeRole
+        }
+        onChange={(e) =>
+          setCommitteeForm({
+            ...committeeForm,
+            committeeRole:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      >
+        <MenuItem value="PRESIDENT">
+          President
+        </MenuItem>
+
+        <MenuItem value="VICE_PRESIDENT">
+          Vice President
+        </MenuItem>
+
+        <MenuItem value="SECRETARY">
+          Secretary
+        </MenuItem>
+
+        <MenuItem value="TREASURER">
+          Treasurer
+        </MenuItem>
+      </TextField>
+
+      <TextField
+        type="date"
+        label="Joining Date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={
+          committeeForm.joiningDate
+        }
+        onChange={(e) =>
+          setCommitteeForm({
+            ...committeeForm,
+            joiningDate:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        type="date"
+        label="End Date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={
+          committeeForm.endDate
+        }
+        onChange={(e) =>
+          setCommitteeForm({
+            ...committeeForm,
+            endDate:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Remarks"
+        multiline
+        rows={3}
+        value={
+          committeeForm.remarks
+        }
+        onChange={(e) =>
+          setCommitteeForm({
+            ...committeeForm,
+            remarks:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+    </Stack>
+  </DialogContent>
+
+  {/* FOOTER */}
+
+  <DialogActions
+    sx={{
+      bgcolor: '#FFF7F0',
+      borderTop:
+        '1px solid rgba(122,30,30,0.10)',
+      px: 3,
+      py: 2,
+    }}
+  >
+    <Button
+      onClick={() =>
+        setOpenCommitteeDialog(false)
+      }
+      sx={{
+        color: '#8A6D3B',
+      }}
+    >
+      Cancel
+    </Button>
+
+    <Button
+      variant="contained"
+      onClick={() =>
+        committeeMutation.mutate({
+          id: committeeForm.id,
+          dharamshalaId: id,
+          userId:
+            committeeForm.userId,
+          committeeRole:
+            committeeForm.committeeRole,
+          joiningDate:
+            committeeForm.joiningDate,
+          endDate:
+            committeeForm.endDate,
+          remarks:
+            committeeForm.remarks,
+          status:
+            committeeForm.status,
+        })
+      }
+      sx={{
+        bgcolor: '#7A1E1E',
+
+        '&:hover': {
+          bgcolor: '#651818',
+        },
+      }}
+    >
+      {committeeForm.id
+        ? 'Update'
+        : 'Save'}
+    </Button>
+  </DialogActions>
+</Dialog>
+  
+{/* EDIT DHARAMSHALA DIALOG */}
+
+<Dialog
+  open={openEditDialog}
+  onClose={() =>
+    setOpenEditDialog(false)
+  }
+  maxWidth="md"
+  fullWidth
+  scroll="paper"
+  PaperProps={{
+    sx: {
+      borderRadius: 4,
+      bgcolor: '#FFFDF8',
+      overflow: 'hidden',
+    },
+  }}
+>
+  {/* HEADER */}
+
+  <DialogTitle
+    sx={{
+      bgcolor: '#FFF7F0',
+      color: '#7A1E1E',
+      fontWeight: 700,
+      fontSize: 32,
+
+      display: 'flex',
+      justifyContent:
+        'space-between',
+      alignItems: 'center',
+    }}
+  >
+    Edit Dharamshala
+
+    <IconButton
+      onClick={() =>
+        setOpenEditDialog(false)
+      }
+    >
+      <CloseIcon />
+    </IconButton>
+  </DialogTitle>
+
+  <Divider />
+
+  {/* CONTENT */}
+
+  <DialogContent
+    sx={{
+      bgcolor: '#FFFFFF',
+      p: 4,
+    }}
+  >
+    <Stack spacing={3}>
+
+      <TextField
+        label="Name"
+        fullWidth
+        value={dharamshalaForm.name}
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            name:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Mobile Number"
+        fullWidth
+        value={
+          dharamshalaForm.mobileNumber
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            mobileNumber:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Alternate Mobile"
+        fullWidth
+        value={
+          dharamshalaForm.alternateMobileNumber
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            alternateMobileNumber:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Email"
+        fullWidth
+        value={
+          dharamshalaForm.email
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            email:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Website"
+        fullWidth
+        value={
+          dharamshalaForm.website
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            website:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Address"
+        fullWidth
+        multiline
+        rows={2}
+        value={
+          dharamshalaForm.address
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            address:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Established Year"
+        fullWidth
+        value={
+          dharamshalaForm.establishedYear
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            establishedYear:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      <TextField
+        label="Description"
+        multiline
+        rows={5}
+        fullWidth
+        value={
+          dharamshalaForm.description
+        }
+        onChange={(e) =>
+          setDharamshalaForm({
+            ...dharamshalaForm,
+            description:
+              e.target.value,
+          })
+        }
+        sx={fieldStyle}
+      />
+
+      {/* IMAGE UPLOADS */}
+
+      <Stack
+        direction={{
+          xs: 'column',
+          md: 'row',
+        }}
+        spacing={2}
+      >
+        <Button
+          component="label"
+          variant="outlined"
+          startIcon={
+            <PhotoCameraIcon />
+          }
+          sx={{
+            flex: 1,
+            py: 1.5,
+            color: '#7A1E1E',
+            borderColor:
+              '#7A1E1E',
+          }}
+        >
+          Upload Profile
+
+          <input
+            hidden
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setDharamshalaForm({
+                ...dharamshalaForm,
+                profileImageFile:
+                  e.target
+                    .files?.[0],
+              })
+            }
+          />
+        </Button>
+
+        <Button
+          component="label"
+          variant="outlined"
+          startIcon={
+            <PhotoCameraIcon />
+          }
+          sx={{
+            flex: 1,
+            py: 1.5,
+            color: '#7A1E1E',
+            borderColor:
+              '#7A1E1E',
+          }}
+        >
+          Upload Banner
+
+          <input
+            hidden
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setDharamshalaForm({
+                ...dharamshalaForm,
+                bannerImageFile:
+                  e.target
+                    .files?.[0],
+              })
+            }
+          />
+        </Button>
+      </Stack>
+
+    </Stack>
+  </DialogContent>
+
+  {/* FOOTER */}
+
+  <DialogActions
+    sx={{
+      bgcolor: '#FFF7F0',
+      p: 3,
+    }}
+  >
+    <Button
+      onClick={() =>
+        setOpenEditDialog(false)
+      }
+      sx={{
+        color: '#7A1E1E',
+      }}
+    >
+      Cancel
+    </Button>
+
+    <Button
+      variant="contained"
+      disabled={
+        updateMutation.isPending
+      }
+      onClick={() =>
+        updateMutation.mutate(
+          dharamshalaForm
+        )
+      }
+      sx={{
+        bgcolor: '#E31E24',
+
+        '&:hover': {
+          bgcolor: '#C81A20',
+        },
+      }}
+    >
+      {updateMutation.isPending
+        ? 'Updating...'
+        : 'Update'}
+    </Button>
+  </DialogActions>
+</Dialog>
   </Box>
 )
 }
